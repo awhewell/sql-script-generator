@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,11 +48,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command.cs" />
+    <Compile Include="CommandRunner.cs" />
+    <Compile Include="CommandRunner_DumpMetadata.cs" />
+    <Compile Include="DatabaseEngine.cs" />
+    <Compile Include="DatabaseEngineFactory.cs" />
+    <Compile Include="IEngine.cs" />
+    <Compile Include="Models\ColumnCollection.cs" />
+    <Compile Include="Models\ColumnModel.cs" />
+    <Compile Include="Models\DatabaseModel.cs" />
+    <Compile Include="Models\SchemaModel.cs" />
+    <Compile Include="Models\TableModel.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="OptionsParser.cs" />
+    <Compile Include="SqlServer\Engine.cs" />
+    <Compile Include="SqlServer\Models\IS_Column.cs" />
+    <Compile Include="SqlServer\Models\IS_Schemata.cs" />
+    <Compile Include="SqlServer\Models\IS_Table.cs" />
+    <Compile Include="SqlServer\Models\SysDatabases.cs" />
+    <Compile Include="Stdin.cs" />
+    <Compile Include="Stdout.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

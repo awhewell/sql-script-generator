@@ -10,6 +10,29 @@ namespace SqlScriptGenerator
     {
         static void Main(string[] args)
         {
+            var success = false;
+
+            try {
+                var options = OptionsParser.Parse(args);
+
+                CommandRunner commandRunner = null;
+                switch(options.Command) {
+                    case Command.DumpMetadata:  commandRunner = new CommandRunner_DumpMetadata(); break;
+                    case Command.None:          break;
+                }
+
+                if(commandRunner == null) {
+                    OptionsParser.Usage("Missing command");
+                } else {
+                    commandRunner.Options = options;
+                    success = commandRunner.Run();
+                }
+            } catch(Exception ex) {
+                Stdout.WriteLine($"Caught exception {ex.Message}:\r\n{ex}");
+                Environment.Exit(2);
+            }
+
+            Environment.Exit(success ? 0 : 1);
         }
     }
 }
