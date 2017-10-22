@@ -28,7 +28,7 @@ namespace SqlScriptGenerator
                     success = commandRunner.Run();
                 }
             } catch(Exception ex) {
-                Stdout.WriteLine($"Caught exception {ex.Message}:\r\n{ex}");
+                StdOut.WriteLine($"Caught exception {ex.Message}:\r\n{ex}");
                 Environment.Exit(2);
             }
 

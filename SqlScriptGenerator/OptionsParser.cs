@@ -109,18 +109,18 @@ namespace SqlScriptGenerator
             var defaults = new Options();
 
             //                 123456789.123456789.123456789.123456789.123456789.123456789.123456789.123456789
-            Stdout.WriteLine($"usage: SqlScriptGenerator <command> [options]");
-            Stdout.WriteLine($"  -metadata      Dump the metadata for a database");
-            Stdout.WriteLine();
-            Stdout.WriteLine($"  -engine        Database engine [{defaults.DatabaseEngine}]");
-            Stdout.WriteLine($"                 ({ListEnum<DatabaseEngine>(exclude: new DatabaseEngine[] { DatabaseEngine.None })})");
-            Stdout.WriteLine($"  -connection    The connection string [{defaults.ConnectionString}]");
-            Stdout.WriteLine($"  -database      The name of the database [{defaults.DatabaseName}]");
-            Stdout.WriteLine($"  -askPassword   Ask for the connection password at runtime");
+            StdOut.WriteLine($"usage: SqlScriptGenerator <command> [options]");
+            StdOut.WriteLine($"  -metadata      Dump the metadata for a database");
+            StdOut.WriteLine();
+            StdOut.WriteLine($"  -engine        Database engine [{defaults.DatabaseEngine}]");
+            StdOut.WriteLine($"                 ({ListEnum<DatabaseEngine>(exclude: new DatabaseEngine[] { DatabaseEngine.None })})");
+            StdOut.WriteLine($"  -connection    The connection string [{defaults.ConnectionString}]");
+            StdOut.WriteLine($"  -database      The name of the database [{defaults.DatabaseName}]");
+            StdOut.WriteLine($"  -askPassword   Ask for the connection password at runtime");
 
             if(!String.IsNullOrEmpty(message)) {
-                Stdout.WriteLine();
-                Stdout.WriteLine(message);
+                StdOut.WriteLine();
+                StdOut.WriteLine(message);
             }
 
             Environment.Exit(1);
@@ -139,8 +139,8 @@ namespace SqlScriptGenerator
 
         public static string AskForPassword()
         {
-            Stdout.WriteLine($"Connection password:");
-            return Stdin.ReadLine();
+            StdOut.WriteLine($"Connection password:");
+            return StdIn.ReadLine();
         }
     }
 }

@@ -70,8 +70,8 @@
     <Compile Include="SqlServer\Models\IS_Schemata.cs" />
     <Compile Include="SqlServer\Models\IS_Table.cs" />
     <Compile Include="SqlServer\Models\SysDatabases.cs" />
-    <Compile Include="Stdin.cs" />
-    <Compile Include="Stdout.cs" />
+    <Compile Include="StdIn.cs" />
+    <Compile Include="StdOut.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

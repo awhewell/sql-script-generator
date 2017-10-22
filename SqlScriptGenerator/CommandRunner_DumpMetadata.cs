@@ -14,9 +14,9 @@ namespace SqlScriptGenerator
             if(Options.DatabaseEngine == DatabaseEngine.None)   OptionsParser.Usage("Database engine must be specified");
             if(String.IsNullOrEmpty(Options.ConnectionString))  OptionsParser.Usage("Connection string must be supplied");
 
-            Stdout.WriteLine($"Metadata dump");
-            Stdout.WriteLine($"Connection string: {Options.ConnectionString}");
-            Stdout.WriteLine($"Database:          {Options.DatabaseName}");
+            StdOut.WriteLine($"Metadata dump");
+            StdOut.WriteLine($"Connection string: {Options.ConnectionString}");
+            StdOut.WriteLine($"Database:          {Options.DatabaseName}");
 
             var engine = DatabaseEngineFactory.CreateEngine(Options.DatabaseEngine);
             var database = engine.ReadDatabaseMetadata(Options);
@@ -27,7 +27,7 @@ namespace SqlScriptGenerator
 
         public static void DumpMetadata(DatabaseModel database)
         {
-            Stdout.WriteLine($"[{database.Name}]");
+            StdOut.WriteLine($"[{database.Name}]");
             foreach(var schema in database.Schemas.Values.OrderBy(r => r.Name)) {
                 DumpMetadata(schema);
             }
@@ -35,7 +35,7 @@ namespace SqlScriptGenerator
 
         private static void DumpMetadata(SchemaModel schema)
         {
-            Stdout.WriteLine($"    [{schema.Name}]");
+            StdOut.WriteLine($"    [{schema.Name}]");
             foreach(var table in schema.Tables.Values.OrderBy(r => r.Name)) {
                 DumpMetadata(table);
             }
@@ -49,7 +49,7 @@ namespace SqlScriptGenerator
 
         private static void DumpMetadata(ColumnCollection columnCollection)
         {
-            Stdout.WriteLine($"        [{columnCollection.Name}]");
+            StdOut.WriteLine($"        [{columnCollection.Name}]");
             foreach(var column in columnCollection.Columns.Values.OrderBy(r => r.Ordinal)) {
                 DumpMetadata(column);
             }
@@ -57,7 +57,7 @@ namespace SqlScriptGenerator
 
         private static void DumpMetadata(ColumnModel column)
         {
-            Stdout.WriteLine($"            [{column.Name}]");
+            StdOut.WriteLine($"            [{column.Name}]");
         }
     }
 }
