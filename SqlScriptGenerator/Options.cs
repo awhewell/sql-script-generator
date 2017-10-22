@@ -17,5 +17,7 @@ namespace SqlScriptGenerator
         public string DatabaseName { get; set; }
 
         public bool AskForPassword { get; set; }
+
+        public string ProjectFileName { get; set; }
     }
 }
