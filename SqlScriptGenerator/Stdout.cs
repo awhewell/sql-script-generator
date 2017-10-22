@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace SqlScriptGenerator
 {
-    static class Stdout
+    static class StdOut
     {
         private static TextWriter _StdOut;
 
         public static bool Silent { get; set; }
 
-        static Stdout()
+        static StdOut()
         {
             _StdOut = new StreamWriter(Console.OpenStandardOutput());
         }

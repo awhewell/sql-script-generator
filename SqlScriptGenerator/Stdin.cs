@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace SqlScriptGenerator
 {
-    class Stdin
+    class StdIn
     {
         private static TextReader _StdIn;
 
         public static bool Silent { get; set; }
 
-        static Stdin()
+        static StdIn()
         {
             _StdIn = new StreamReader(Console.OpenStandardInput());
         }
