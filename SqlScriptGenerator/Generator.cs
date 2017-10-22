@@ -28,6 +28,8 @@ namespace SqlScriptGenerator
             }
 
             var templateSource = File.ReadAllText(templatePath);
+            templateSource = TemplateSwitchesStorage.RemoveSwitchesFromSource(templateSource);
+
             var template = Template.Compile<TemplateModel>(templateSource);
             var result = template.Render(model);
 

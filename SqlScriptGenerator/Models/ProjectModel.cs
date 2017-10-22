@@ -57,7 +57,7 @@ namespace SqlScriptGenerator.Models
 
         public static string ApplyPath(string fullPath, string fileName)
         {
-            return String.IsNullOrEmpty(fullPath) || Path.IsPathRooted(fileName) ? fileName : Path.Combine(fullPath, fileName);
+            return String.IsNullOrEmpty(fullPath) || Path.IsPathRooted(fileName) ? fileName : Path.GetFullPath(Path.Combine(fullPath, fileName));
         }
     }
 }

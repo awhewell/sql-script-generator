@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SqlScriptGenerator.Models
@@ -31,5 +32,35 @@ namespace SqlScriptGenerator.Models
         public ViewModel View { get; set; }
 
         public UserDefinedTableTypeModel UDTT { get; set; }
+
+        public string ApplyModelToFileSpec(string fileSpec)
+        {
+            string result = null;
+
+            if(fileSpec != null) {
+                var regex = new Regex(@"(\{(?<key>database|schema|entity|table|view|udtt)\})", RegexOptions.IgnoreCase);
+                var buffer = new StringBuilder(fileSpec);
+                foreach(var match in regex.Matches(fileSpec).OfType<Match>().OrderByDescending(r => r.Index)) {
+                    if(match.Success) {
+                        var replaceWith = "";
+                        switch((match.Groups["key"].Value ?? "").ToLower()) {
+                            case "database":    replaceWith = Database?.Name ?? ""; break;
+                            case "schema":      replaceWith = Schema?.Name ?? ""; break;
+                            case "entity":      replaceWith = Entity?.Name ?? ""; break;
+                            case "table":       replaceWith = Table?.Name ?? ""; break;
+                            case "view":        replaceWith = View?.Name ?? ""; break;
+                            case "udtt":        replaceWith = UDTT?.Name ?? ""; break;
+                        }
+
+                        buffer.Remove(match.Index, match.Length);
+                        buffer.Insert(match.Index, replaceWith);
+                    }
+                }
+
+                result = buffer.ToString();
+            }
+
+            return result;
+        }
     }
 }

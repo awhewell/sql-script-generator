@@ -19,5 +19,7 @@ namespace SqlScriptGenerator.Models
     public class TemplateSwitchesModel
     {
         public string FileSpec { get; set; }
+
+        public List<string> ParseErrors { get; } = new List<string>();
     }
 }

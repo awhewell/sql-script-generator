@@ -25,7 +25,6 @@ namespace SqlScriptGenerator
             ProjectStorage.LoadOptionDefaultsFromProject(Options.ProjectFileName, Options);
 
             if(String.IsNullOrEmpty(Options.TemplateFileName))  OptionsParser.Usage("Missing template filename");
-            if(String.IsNullOrEmpty(Options.ScriptFileName))    OptionsParser.Usage("Missing script filename");
             if(String.IsNullOrEmpty(Options.EntityName))        OptionsParser.Usage("Missing entity name");
             if(Options.DatabaseEngine == DatabaseEngine.None)   OptionsParser.Usage("Database engine must be specified");
             if(String.IsNullOrEmpty(Options.ConnectionString))  OptionsParser.Usage("Connection string must be supplied");
@@ -53,6 +52,21 @@ namespace SqlScriptGenerator
             }
 
             var templateFileName = ProjectModel.ApplyPath(project?.TemplateFolderFullPath, Options.TemplateFileName);
+            var templateSwitches = TemplateSwitchesStorage.LoadFromTemplate(templateFileName);
+            if(templateSwitches.ParseErrors.Count > 0) {
+                StdOut.WriteLine($"Template switch errors in {templateFileName}");
+                foreach(var parseError in templateSwitches.ParseErrors) {
+                    StdOut.WriteLine(parseError);
+                }
+                Environment.Exit(1);
+            }
+
+            if(String.IsNullOrEmpty(Options.ScriptFileName)) {
+                Options.ScriptFileName = model.ApplyModelToFileSpec(templateSwitches.FileSpec);
+            }
+            if(String.IsNullOrEmpty(Options.ScriptFileName)) {
+                OptionsParser.Usage("Script filename must either be supplied or specified as a FILESPEC switch in the template");
+            }
             var scriptFileName = ProjectModel.ApplyPath(project?.ScriptFolderFullPath, Options.ScriptFileName);
 
             StdOut.WriteLine($"Project:    {Options.ProjectFileName}");
