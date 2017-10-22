@@ -28,10 +28,17 @@ namespace SqlScriptGenerator
             }
 
             var templateSource = File.ReadAllText(templatePath);
-            templateSource = TemplateSwitchesStorage.RemoveSwitchesFromSource(templateSource);
 
-            var template = Template.Compile<TemplateModel>(templateSource);
+            ITemplate<TemplateModel> template;
+            try {
+                template = Template.Compile<TemplateModel>(templateSource);
+            } catch(TemplateCompilationException ex) {
+                var errors = String.Join(Environment.NewLine, ex.Errors.Select(r => $"Line {r.Line} col {r.Column}: {r.ErrorNumber} {r.ErrorText}"));
+                throw new InvalidOperationException($"Failed to compile template: {errors}");
+            }
             var result = template.Render(model);
+
+            result = TemplateSwitchesStorage.RemoveSwitchesFromSource(result);
 
             return result;
         }
