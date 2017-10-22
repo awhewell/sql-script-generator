@@ -75,8 +75,12 @@ namespace SqlScriptGenerator
             StdOut.WriteLine($"Template:   {templateFileName}");
             StdOut.WriteLine($"Script:     {scriptFileName}");
 
-            var generator = new Generator();
-            var content = generator.ApplyModelToTemplate(templateFileName, model);
+            var templateEngine = new Templating.TemplateEngine() {
+                Model = model,
+                Options = Options,
+                Switches = templateSwitches,
+            };
+            var content = templateEngine.ApplyTemplate(File.ReadAllText(templateFileName));
 
             var folder = Path.GetDirectoryName(Path.GetFullPath(scriptFileName));
             if(!Directory.Exists(folder)) {

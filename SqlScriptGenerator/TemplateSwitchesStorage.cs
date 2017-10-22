@@ -21,9 +21,9 @@ namespace SqlScriptGenerator
 {
     static class TemplateSwitchesStorage
     {
-        private const string Prefix = "--#";
-        private static readonly Regex SwitchLinKeyValueeRegex = new Regex(@"--#\s*(?<key>\S+)(\s*(?<value>.*))?");
-        private static readonly Regex SwitchLinesRegex =        new Regex(@"(?<switchLine>^\s*--#.*\r?\n)", RegexOptions.Multiline);
+        public const string Prefix = "--#";
+        private static readonly Regex SwitchLineKeyValueRegex = new Regex(Prefix + @"\s*(?<key>\S+)(\s*(?<value>.*))?");
+        private static readonly Regex SwitchLinesRegex =        new Regex(@"(?<switchLine>^\s*" + Prefix + ".*\r?\n)", RegexOptions.Multiline);
 
         public static TemplateSwitchesModel LoadFromTemplate(string templateFileName)
         {
@@ -31,7 +31,7 @@ namespace SqlScriptGenerator
 
             if(!String.IsNullOrEmpty(templateFileName)) {
                 foreach(var line in LoadTemplateSwitchLines(templateFileName).Select(r => r.Trim())) {
-                    var match = SwitchLinKeyValueeRegex.Match(line);
+                    var match = SwitchLineKeyValueRegex.Match(line);
                     var key = match.Groups["key"].Value;
                     var value = (match.Groups["value"].Value ?? "").Trim();
                     if(!match.Success || String.IsNullOrEmpty(key)) {
@@ -62,7 +62,7 @@ namespace SqlScriptGenerator
                 throw new FileNotFoundException($"Cannot load template {templateFileName}, it does not exist");
             }
 
-            return File.ReadAllLines(templateFileName).Where(r => r.Trim().StartsWith("--#")).ToArray();
+            return File.ReadAllLines(templateFileName).Where(r => r.Trim().StartsWith(Prefix)).ToArray();
         }
 
         public static string RemoveSwitchesFromSource(string templateSource)

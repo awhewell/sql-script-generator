@@ -38,14 +38,8 @@
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="RazorTemplates.Core, Version=1.2.1.0, Culture=neutral, PublicKeyToken=f2e65d6ca1d2b4cd, processorArchitecture=MSIL">
-      <HintPath>..\packages\RazorTemplates.1.2.1\lib\net40\RazorTemplates.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -62,7 +56,6 @@
     <Compile Include="DatabaseEngine.cs" />
     <Compile Include="DatabaseEngineFactory.cs" />
     <Compile Include="EntityResolver.cs" />
-    <Compile Include="Generator.cs" />
     <Compile Include="IEngine.cs" />
     <Compile Include="IEntity.cs" />
     <Compile Include="Models\ColumnCollection.cs" />
@@ -90,6 +83,16 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TemplateSwitchesStorage.cs" />
+    <Compile Include="Templating\CommandState_Loop.cs" />
+    <Compile Include="Templating\NameCode.cs" />
+    <Compile Include="Templating\TemplateCommand_EndLoop.cs" />
+    <Compile Include="Templating\TemplateCommand_Loop.cs" />
+    <Compile Include="Templating\TemplateCommand.cs" />
+    <Compile Include="Templating\TemplateCommandParser.cs" />
+    <Compile Include="Templating\TemplateEngine.cs" />
+    <Compile Include="Templating\TemplateParsingException.cs" />
+    <Compile Include="Templating\TemplateState.cs" />
+    <Compile Include="TypeFormatter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
