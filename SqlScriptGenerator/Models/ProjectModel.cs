@@ -14,22 +14,27 @@ namespace SqlScriptGenerator.Models
         public string ProjectFileName { get; set; }
 
         [JsonIgnore]
-        public string ProjectFolder { get { return Path.GetDirectoryName(Path.GetFullPath(ProjectFileName)); } }
+        public string ProjectFolder { get { return String.IsNullOrEmpty(ProjectFileName) ? Environment.CurrentDirectory : Path.GetDirectoryName(Path.GetFullPath(ProjectFileName)); } }
 
-        public string TemplateRootFolder { get; set; }
-
-        [JsonIgnore]
-        public string TemplateFolderFullPath { get { return GetFullPath(TemplateRootFolder); } }
-
-        public string OutputRootFolder { get; set; }
+        public string TemplateFolder { get; set; }
 
         [JsonIgnore]
-        public string OutputRootFullPath { get { return GetFullPath(OutputRootFolder); } }
+        public string TemplateFolderFullPath { get { return GetFullPath(TemplateFolder); } }
+
+        public string ScriptFolder { get; set; }
+
+        [JsonIgnore]
+        public string ScriptFolderFullPath { get { return GetFullPath(ScriptFolder); } }
 
         private string GetFullPath(string path)
         {
             path = (path ?? "").Trim();
             return Path.IsPathRooted(path) ? path : Path.Combine(ProjectFolder, path);
+        }
+
+        public static string ApplyPath(string fullPath, string fileName)
+        {
+            return String.IsNullOrEmpty(fullPath) || Path.IsPathRooted(fileName) ? fileName : Path.Combine(fullPath, fileName);
         }
     }
 }

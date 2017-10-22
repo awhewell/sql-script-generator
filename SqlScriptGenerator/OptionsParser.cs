@@ -47,11 +47,23 @@ namespace SqlScriptGenerator
                     case "-database":
                         result.DatabaseName = UseNextArg(arg, nextArg, ref i);
                         break;
+                    case "-entity":
+                        result.EntityName = UseNextArg(arg, nextArg, ref i);
+                        break;
+                    case "-generate":
+                        result.Command = ParseCommand(result, Command.GenerateScript);
+                        break;
                     case "-metadata":
                         result.Command = ParseCommand(result, Command.DumpMetadata);
                         break;
                     case "-project":
                         result.ProjectFileName = UseNextArg(arg, nextArg, ref i);
+                        break;
+                    case "-script":
+                        result.ScriptFileName = UseNextArg(arg, nextArg, ref i);
+                        break;
+                    case "-template":
+                        result.TemplateFileName = UseNextArg(arg, nextArg, ref i);
                         break;
                     default:
                         Usage($"Invalid argument {arg}");
@@ -116,12 +128,18 @@ namespace SqlScriptGenerator
 
             //                 123456789.123456789.123456789.123456789.123456789.123456789.123456789.123456789
             StdOut.WriteLine($"usage: SqlScriptGenerator <command> [options]");
-            StdOut.WriteLine($"  -metadata      Dump the metadata for a database");
             StdOut.WriteLine($"  -createProj    Create or update a project file");
+            StdOut.WriteLine($"  -generate      Generate a script from a template");
+            StdOut.WriteLine($"  -metadata      Dump the metadata for a database");
             StdOut.WriteLine();
             StdOut.WriteLine($"PROJECT OPTIONS");
             StdOut.WriteLine($"  -project       Full path to the project file [{defaults.ProjectFileName}]");
-
+            StdOut.WriteLine();
+            StdOut.WriteLine($"TEMPLATE OPTIONS");
+            StdOut.WriteLine($"  -template      Template file [{defaults.TemplateFileName}]");
+            StdOut.WriteLine($"  -script        Script file [{defaults.ScriptFileName}]");
+            StdOut.WriteLine($"  -entity        Name of entity to use [{defaults.EntityName}]");
+            StdOut.WriteLine();
             StdOut.WriteLine($"DATABASE ENGINE OPTIONS");
             StdOut.WriteLine($"  -engine        Database engine [{defaults.DatabaseEngine}]");
             StdOut.WriteLine($"                 ({ListEnum<DatabaseEngine>(exclude: new DatabaseEngine[] { DatabaseEngine.None })})");

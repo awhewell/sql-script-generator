@@ -13,13 +13,17 @@ namespace SqlScriptGenerator
     {
         public static ProjectModel Load(string fileName)
         {
-            if(!File.Exists(fileName)) {
-                throw new FileNotFoundException($"Could not load project file {fileName}, it does not exist");
-            }
+            ProjectModel result = null;
 
-            var jsonText = File.ReadAllText(fileName);
-            var result = JsonConvert.DeserializeObject<ProjectModel>(jsonText);
-            result.ProjectFileName = fileName;
+            if(!String.IsNullOrEmpty(fileName)) {
+                if(!File.Exists(fileName)) {
+                    throw new FileNotFoundException($"Could not load project file {fileName}, it does not exist");
+                }
+
+                var jsonText = File.ReadAllText(fileName);
+                result = JsonConvert.DeserializeObject<ProjectModel>(jsonText);
+                result.ProjectFileName = fileName;
+            }
 
             return result;
         }

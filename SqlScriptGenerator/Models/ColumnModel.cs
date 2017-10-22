@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SqlScriptGenerator.Models
 {
-    class ColumnModel
+    public class ColumnModel
     {
         public string Name { get; private set; }
 

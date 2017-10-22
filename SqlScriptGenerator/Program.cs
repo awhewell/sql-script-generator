@@ -19,6 +19,7 @@ namespace SqlScriptGenerator
                 switch(options.Command) {
                     case Command.DumpMetadata:          commandRunner = new CommandRunner_DumpMetadata(); break;
                     case Command.GenerateProjectFile:   commandRunner = new CommandRunner_GenerateProjectFile(); break;
+                    case Command.GenerateScript:        commandRunner = new CommandRunner_GenerateScript(); break;
                     case Command.None:                  break;
                 }
 

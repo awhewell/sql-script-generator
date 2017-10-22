@@ -13,5 +13,7 @@ namespace SqlScriptGenerator
         DumpMetadata,
 
         GenerateProjectFile,
+
+        GenerateScript,
     }
 }
