@@ -39,6 +39,12 @@ namespace SqlScriptGenerator
             foreach(var table in schema.Tables.Values.OrderBy(r => r.Name)) {
                 DumpMetadata(table);
             }
+            foreach(var view in schema.Views.Values.OrderBy(r => r.Name)) {
+                DumpMetadata(view);
+            }
+            foreach(var udtt in schema.UserDefinedTableTypes.Values.OrderBy(r => r.Name)) {
+                DumpMetadata(udtt);
+            }
         }
 
         private static void DumpMetadata(ColumnCollection columnCollection)

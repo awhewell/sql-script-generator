@@ -12,7 +12,7 @@ namespace SqlScriptGenerator
         {
             switch(engine) {
                 case DatabaseEngine.None:       return null;
-                case DatabaseEngine.SqlServer:  return new SqlServer.Engine();
+                case DatabaseEngine.SqlServer:  return new SqlServer.SqlServerEngine();
                 default:                        throw new NotImplementedException();
             }
         }

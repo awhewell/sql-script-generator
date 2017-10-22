@@ -59,9 +59,13 @@
     <Compile Include="Models\DatabaseModel.cs" />
     <Compile Include="Models\SchemaModel.cs" />
     <Compile Include="Models\TableModel.cs" />
+    <Compile Include="Models\UserDefinedTableTypeModel.cs" />
+    <Compile Include="Models\ViewModel.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="OptionsParser.cs" />
-    <Compile Include="SqlServer\Engine.cs" />
+    <Compile Include="SqlServer\Models\SysColumns.cs" />
+    <Compile Include="SqlServer\Models\SysTableTypes.cs" />
+    <Compile Include="SqlServer\SqlServerEngine.cs" />
     <Compile Include="SqlServer\Models\IS_Column.cs" />
     <Compile Include="SqlServer\Models\IS_Schemata.cs" />
     <Compile Include="SqlServer\Models\IS_Table.cs" />

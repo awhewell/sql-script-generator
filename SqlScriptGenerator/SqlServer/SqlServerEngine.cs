@@ -10,7 +10,7 @@ using System.Data;
 
 namespace SqlScriptGenerator.SqlServer
 {
-    class Engine : IEngine
+    class SqlServerEngine : IEngine
     {
         private SqlConnection CreateOpenConnection(Options options)
         {
@@ -85,6 +85,8 @@ namespace SqlScriptGenerator.SqlServer
                 var schema = new SchemaModel(database, schemaMeta.SCHEMA_NAME, database.IsCaseSensitive);
                 database.Schemas.Add(schema.Name, schema);
                 ReadTableMetadata(connection, schema);
+                ReadViewMetadata(connection, schema);
+                ReadUserDefinedTableTypeMetadata(connection, schema);
             }
         }
 
@@ -108,6 +110,45 @@ namespace SqlScriptGenerator.SqlServer
             }
         }
 
+        private void ReadViewMetadata(SqlConnection connection, SchemaModel schema)
+        {
+            schema.Views.Clear();
+
+            foreach(var viewMeta in connection.Query<Models.IS_Table>($@"
+                SELECT *
+                FROM   INFORMATION_SCHEMA.TABLES
+                WHERE  [TABLE_CATALOG] = @databaseName
+                AND    [TABLE_SCHEMA] = @schemaName
+                AND    [TABLE_TYPE] = 'VIEW'
+            ", new {
+                @databaseName = schema.Database.Name,
+                @schemaName = schema.Name,
+            }).ToArray()) {
+                var view = new ViewModel(schema, viewMeta.TABLE_NAME, schema.IsCaseSensitive);
+                schema.Views.Add(view.Name, view);
+                ReadInformationSchemaColumnMetadata(connection, schema, view);
+            }
+        }
+
+        private void ReadUserDefinedTableTypeMetadata(SqlConnection connection, SchemaModel schema)
+        {
+            schema.UserDefinedTableTypes.Clear();
+
+            foreach(var udttMeta in connection.Query<Models.SysTableTypes>($@"
+                SELECT [udtt].*
+                      ,[schema].[name] AS [schema_name]
+                FROM   [sys].[table_types] AS [udtt]
+                JOIN   [sys].[schemas]     AS [schema] ON [udtt].[schema_id] = [schema].[schema_id]
+                WHERE  [schema].[name] = @schemaName
+            ", new {
+                @schemaName = schema.Name,
+            }).ToArray()) {
+                var udtt = new UserDefinedTableTypeModel(schema, udttMeta.name, schema.IsCaseSensitive);
+                schema.UserDefinedTableTypes.Add(udtt.Name, udtt);
+                ReadSysColumnMetadata(connection, schema, udtt, udttMeta.type_table_object_id);
+            }
+        }
+
         private void ReadInformationSchemaColumnMetadata(SqlConnection connection, SchemaModel schema, ColumnCollection columnCollection)
         {
             columnCollection.Columns.Clear();
@@ -123,8 +164,30 @@ namespace SqlScriptGenerator.SqlServer
                 @schemaName = schema.Name,
                 @tableName = columnCollection.Name,
             }).ToArray()) {
-                var column = new ColumnModel(columnCollection, columnMeta.COLUMN_NAME, columnMeta.ORDINAL_POSITION);
-                columnCollection.Columns.Add(column.Name, column);
+                columnCollection.Columns.Add(columnMeta.COLUMN_NAME, new ColumnModel(
+                    columnCollection,
+                    columnMeta.COLUMN_NAME,
+                    columnMeta.ORDINAL_POSITION
+                ));
+            }
+        }
+
+        private void ReadSysColumnMetadata(SqlConnection connection, SchemaModel schema, ColumnCollection columnCollection, int objectId)
+        {
+            columnCollection.Columns.Clear();
+
+            foreach(var columnMeta in connection.Query<Models.SysColumns>($@"
+                SELECT *
+                FROM   [sys].[columns]
+                WHERE  [object_id] = @objectId
+            ", new {
+                @objectId = objectId
+            }).ToArray()) {
+                columnCollection.Columns.Add(columnMeta.name, new ColumnModel(
+                    columnCollection,
+                    columnMeta.name,
+                    columnMeta.column_id
+                ));
             }
         }
     }
