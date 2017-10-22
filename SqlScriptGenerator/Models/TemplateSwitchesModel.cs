@@ -16,12 +16,8 @@ using System.Threading.Tasks;
 
 namespace SqlScriptGenerator.Models
 {
-    public class TableModel : ColumnCollection
+    public class TemplateSwitchesModel
     {
-        public TableModel(SchemaModel parent, string name, bool isCaseSensitive) : base(parent, name, isCaseSensitive)
-        {
-        }
-
-        public override string ToString() => Name ?? "";
+        public string FileSpec { get; set; }
     }
 }

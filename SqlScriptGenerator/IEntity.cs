@@ -14,14 +14,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SqlScriptGenerator.Models
+namespace SqlScriptGenerator
 {
-    public class TableModel : ColumnCollection
+    public interface IEntity
     {
-        public TableModel(SchemaModel parent, string name, bool isCaseSensitive) : base(parent, name, isCaseSensitive)
-        {
-        }
+        string Name { get; }
 
-        public override string ToString() => Name ?? "";
+        bool IsCaseSensitive { get; }
+
+        IEntity Parent { get; }
+
+        IEnumerable<IEntity> Children { get; }
     }
 }

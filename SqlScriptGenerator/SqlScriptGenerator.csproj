@@ -61,8 +61,10 @@
     <Compile Include="CommandRunner_GenerateScript.cs" />
     <Compile Include="DatabaseEngine.cs" />
     <Compile Include="DatabaseEngineFactory.cs" />
+    <Compile Include="EntityResolver.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="IEngine.cs" />
+    <Compile Include="IEntity.cs" />
     <Compile Include="Models\ColumnCollection.cs" />
     <Compile Include="Models\ColumnModel.cs" />
     <Compile Include="Models\DatabaseModel.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Models\SchemaModel.cs" />
     <Compile Include="Models\TableModel.cs" />
     <Compile Include="Models\TemplateModel.cs" />
+    <Compile Include="Models\TemplateSwitchesModel.cs" />
     <Compile Include="Models\UserDefinedTableTypeModel.cs" />
     <Compile Include="Models\ViewModel.cs" />
     <Compile Include="Options.cs" />
