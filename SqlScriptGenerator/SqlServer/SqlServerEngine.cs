@@ -55,6 +55,13 @@ namespace SqlScriptGenerator.SqlServer
             return connection.QuerySingle<string>("SELECT DB_NAME()");
         }
 
+        private int GetObjectId(SqlConnection connection, params string[] nameParts)
+        {
+            return connection.QuerySingle<int>("SELECT OBJECT_ID(@nameParts)", new {
+                @nameParts = String.Join(".", nameParts.Select(r => $"[{r}]")),
+            });
+        }
+
         public string SanitiseConnectionString(string connectionString)
         {
             var builder = CreateConnectionStringBuilder(new Options() { ConnectionString = connectionString, AskForPassword = false });
@@ -123,7 +130,7 @@ namespace SqlScriptGenerator.SqlServer
             }).ToArray()) {
                 var table = new TableModel(schema, tableMeta.TABLE_NAME, schema.IsCaseSensitive);
                 schema.Tables.Add(table.Name, table);
-                ReadInformationSchemaColumnMetadata(connection, schema, table);
+                ReadSysColumnMetadata(connection, schema, table, GetObjectId(connection, schema.Name, table.Name));
             }
         }
 
@@ -143,7 +150,7 @@ namespace SqlScriptGenerator.SqlServer
             }).ToArray()) {
                 var view = new ViewModel(schema, viewMeta.TABLE_NAME, schema.IsCaseSensitive);
                 schema.Views.Add(view.Name, view);
-                ReadInformationSchemaColumnMetadata(connection, schema, view);
+                ReadSysColumnMetadata(connection, schema, view, GetObjectId(connection, schema.Name, view.Name));
             }
         }
 
@@ -166,30 +173,6 @@ namespace SqlScriptGenerator.SqlServer
             }
         }
 
-        private void ReadInformationSchemaColumnMetadata(SqlConnection connection, SchemaModel schema, ColumnCollection columnCollection)
-        {
-            columnCollection.Columns.Clear();
-
-            foreach(var columnMeta in connection.Query<Models.IS_Column>($@"
-                SELECT *
-                FROM   INFORMATION_SCHEMA.COLUMNS
-                WHERE  [TABLE_CATALOG] = @databaseName
-                AND    [TABLE_SCHEMA] = @schemaName
-                AND    [TABLE_NAME] = @tableName
-            ", new {
-                @databaseName = schema.Database.Name,
-                @schemaName = schema.Name,
-                @tableName = columnCollection.Name,
-            }).ToArray()) {
-                columnCollection.Columns.Add(columnMeta.COLUMN_NAME, new ColumnModel(
-                    columnCollection,
-                    columnMeta.COLUMN_NAME,
-                    columnMeta.ORDINAL_POSITION,
-                    columnCollection.IsCaseSensitive
-                ));
-            }
-        }
-
         private void ReadSysColumnMetadata(SqlConnection connection, SchemaModel schema, ColumnCollection columnCollection, int objectId)
         {
             columnCollection.Columns.Clear();
@@ -205,6 +188,7 @@ namespace SqlScriptGenerator.SqlServer
                     columnCollection,
                     columnMeta.name,
                     columnMeta.column_id,
+                    columnMeta.is_identity,
                     columnCollection.IsCaseSensitive
                 ));
             }

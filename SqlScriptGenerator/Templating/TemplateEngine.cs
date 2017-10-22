@@ -11,6 +11,9 @@ namespace SqlScriptGenerator.Templating
     class TemplateEngine
     {
         private static readonly Regex SubstituteValueRegex = new Regex(@"(\{(?<value>.*?)\})");
+        private static readonly Regex SubstituteFormatRegex = new Regex(@"(\<(?<format>.*?)\>)");
+        private static readonly Regex FormatLoopTernaryRegex = new Regex(@"^(?<first>.*?)(?<!\\)\|(?<other>.*?)(?<!\\)\|(?<last>.*?)$");
+
         public TemplateSwitchesModel Switches { get; set; }
 
         public Options Options { get; set; }
@@ -38,6 +41,7 @@ namespace SqlScriptGenerator.Templating
                     TemplateCommandParser.Parse(state);
                 } else {
                     var outputLine = SubstituteVariables(line, state);
+                    outputLine = SubstituteFormatting(outputLine, state);
                     state.Output.Add(outputLine);
                 }
             }
@@ -60,6 +64,45 @@ namespace SqlScriptGenerator.Templating
             }
 
             return result.ToString();
+        }
+
+        private string SubstituteFormatting(string line, TemplateState state)
+        {
+            var result = new StringBuilder(line);
+
+            foreach(var match in SubstituteFormatRegex.Matches(line).OfType<Match>().OrderByDescending(r => r.Index)) {
+                var format = match.Groups["format"].Value ?? "";
+                if(format != "") {
+                    var replaceWith = "";
+
+                    var formatMatch = FormatLoopTernaryRegex.Match(format);
+                    if(formatMatch.Success) {
+                        replaceWith = GetLoopTernaryReplacement(match, formatMatch, line, state);
+                    } else {
+                        replaceWith = null;
+                    }
+
+                    if(replaceWith != null) {
+                        result.Remove(match.Index, match.Length);
+                        result.Insert(match.Index, replaceWith);
+                    }
+                }
+            }
+
+            return result.ToString();
+        }
+
+        private string GetLoopTernaryReplacement(Match match, Match formatMatch, string line, TemplateState state)
+        {
+            var result = "";
+
+            var closestLoop = state.Loops.Peek();
+            if(closestLoop != null) {
+                var group = closestLoop.IsFirstElement ? "first" : closestLoop.IsLastElement ? "last" : "other";
+                result = (formatMatch.Groups[group].Value ?? "").Replace(@"\|", "|");
+            }
+
+            return result;
         }
     }
 }

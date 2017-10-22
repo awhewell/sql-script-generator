@@ -29,6 +29,7 @@ namespace SqlScriptGenerator.Templating
             switch(commandArgs.Command.ToLower()) {
                 case "endloop": templateCommand = new TemplateCommand_EndLoop(); break;
                 case "loop":    templateCommand = new TemplateCommand_Loop(); isBlock = true; break;
+                case "set":     templateCommand = new TemplateCommand_Set(); break;
                 default:
                     state.ReportParserError($"{commandArgs.Command} is not a valid template command");
                     break;

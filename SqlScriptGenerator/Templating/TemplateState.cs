@@ -54,6 +54,17 @@ namespace SqlScriptGenerator.Templating
             }
         }
 
+        public void AddOrReplaceVariable(string name, object obj, int? lineNumberOverride = null)
+        {
+            if(!String.IsNullOrEmpty(name)) {
+                if(Variables.ContainsKey(name)) {
+                    Variables[name] = obj;
+                } else {
+                    Variables.Add(name, obj);
+                }
+            }
+        }
+
         public void RemoveVariable(string name, int? lineNumberOverride = null)
         {
             if(!String.IsNullOrEmpty(name)) {

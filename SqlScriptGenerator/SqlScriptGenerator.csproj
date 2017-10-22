@@ -89,6 +89,7 @@
     <Compile Include="Templating\TemplateCommand_Loop.cs" />
     <Compile Include="Templating\TemplateCommand.cs" />
     <Compile Include="Templating\TemplateCommandParser.cs" />
+    <Compile Include="Templating\TemplateCommand_Set.cs" />
     <Compile Include="Templating\TemplateEngine.cs" />
     <Compile Include="Templating\TemplateParsingException.cs" />
     <Compile Include="Templating\TemplateState.cs" />
