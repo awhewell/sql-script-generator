@@ -24,9 +24,17 @@ namespace SqlScriptGenerator
     /// The first attempt at a template engine paid lip service to using C#. This version is a bit
     /// more along the lines of Razor, it does the whole thing as a generated C# class.
     /// </summary>
-    class TemplateEngineV2
+    class TemplateEngine
     {
-        private static readonly Regex SubstituteValueRegex = new Regex(@"(\{(?<value>.*?)\})");
+        private static readonly Regex LineReplacementRegex = new Regex(@"(\{(?<substituteValue>.*?)\})");
+
+        class LineChunk
+        {
+            public string Chunk;
+            public string SubstituteValue;
+
+            public override string ToString() => Chunk ?? "";
+        }
 
         public TemplateSwitchesModel Switches { get; set; }
 
@@ -82,16 +90,16 @@ namespace SqlScriptGenerator
             var result = new StringBuilder();
 
             result.Append(@"
-                using System;
-                using System.Collections.Generic;
-                using System.Linq;
-                using System.Text;
-                using SqlScriptGenerator;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using SqlScriptGenerator;
 
-                namespace " + @namespace + @"
-                {
-                    public class " + className + @"
-                    {
+namespace " + @namespace + @"
+{
+    public class " + className + @"
+    {
             ");
 
             foreach(var property in Model.GetType().GetProperties()) {
@@ -135,36 +143,77 @@ namespace SqlScriptGenerator
                     result.AppendLine($"#line {lineIndex + 1} // {originalLine}");
                     result.AppendLine(line.ToString());
                 } else {
-                    foreach(var match in SubstituteValueRegex.Matches(line.ToString()).OfType<Match>().OrderByDescending(r => r.Index)) {
-                        var substituteValue = match.Groups["value"].Value ?? "";
-                        if(substituteValue != "") {
-                            var substituteWith = $"\" + ({substituteValue}).ToString() + \"";
-
-                            line.Remove(match.Index, match.Length);
-                            line.Insert(match.Index, substituteWith);
+                    result.AppendLine($"#line {lineIndex + 1} // {originalLine}");
+                    result.AppendLine("__currentLine.Clear();");
+                    foreach(var lineChunk in SplitLineIntoChunks(line.ToString())) {
+                        result.AppendLine($"#line {lineIndex + 1} // {lineChunk}");
+                        if(!String.IsNullOrEmpty(lineChunk.SubstituteValue)) {
+                            result.AppendLine($"__currentLine.Append({lineChunk.SubstituteValue});");
+                        } else {
+                            result.AppendLine($"__currentLine.Append(\"{lineChunk.Chunk}\");");
                         }
                     }
-
-                    result.AppendLine("__currentLine.Clear();");
-                    result.AppendLine($"#line {lineIndex + 1} // {originalLine}");
-                    result.AppendLine($"__currentLine.Append(\"{line}\");");
                     result.AppendLine($"__output.AppendLine(__currentLine.ToString());");
                 }
             }
 
             result.Append(@"
-                            return __output.ToString();
-                        }
-                    }
-                }
+
+            return __output.ToString();
+        }
+    }
+}
             ");
 
             return result.ToString();
         }
 
+        private List<LineChunk> SplitLineIntoChunks(string line)
+        {
+            var result = new List<LineChunk>();
+
+            var startIndex = 0;
+            foreach(var match in LineReplacementRegex.Matches(line.ToString()).OfType<Match>().OrderBy(r => r.Index)) {
+                if(match.Index >= startIndex) {
+                    if(match.Index > startIndex) {
+                        result.Add(new LineChunk() {
+                            Chunk = line.Substring(startIndex, match.Index - startIndex),
+                        });
+                    }
+
+                    result.Add(new LineChunk() {
+                        Chunk = line.Substring(startIndex, match.Length),
+                        SubstituteValue = match.Groups["substituteValue"].Value,
+                    });
+
+                    startIndex = match.Index + match.Length;
+                }
+            }
+
+            if(startIndex < line.Length) {
+                result.Add(new LineChunk() {
+                    Chunk = line.Substring(startIndex),
+                });
+            }
+
+            return result;
+        }
+
         private void AddHelperMethods(StringBuilder result)
         {
             result.Append(@"
+
+public string TextAndTab(string text, int maxWidth = -1, int addToWidth = 1)
+{
+    var result = new StringBuilder(text);
+    if(maxWidth > -1 && (maxWidth + addToWidth) > result.Length) {
+        result.Append(new String(' ', (maxWidth + addToWidth) - result.Length));
+    } else if(maxWidth == -1 && addToWidth > 0) {
+        result.Append(new String(' ', addToWidth));
+    }
+    return result.ToString();
+}
+
 LoopWrapper<T> Loop<T>(IEnumerable<T> enumerable)
 {
     var result = new LoopWrapper<T>(enumerable);
@@ -225,6 +274,8 @@ class LoopWrapper<T> : ILoopWrapper
 
     public T Element { get { return IsValid ? _Elements[_Index] : default(T); } }
 
+    public T[] Elements { get { return _Elements; } }
+
     public LoopWrapper(IEnumerable<T> elements)
     {
         _Elements = elements.ToArray();
@@ -237,7 +288,17 @@ class LoopWrapper<T> : ILoopWrapper
         }
         return IsValid;
     }
-    
+
+    public object FirstOr(object returnIfFirst, object returnOtherwise)
+    {
+        return IsFirst ? returnIfFirst : returnOtherwise;
+    }
+
+    public object LastOr(object returnIfLast, object returnOtherwise)
+    {
+        return IsLast ? returnIfLast : returnOtherwise;
+    }
+
     public override string ToString()
     {
         return Element != null ? Element.ToString() : """";

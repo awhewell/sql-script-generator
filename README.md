@@ -8,27 +8,42 @@ Switch | Args | Use
 ------ | ---- | ---
 FILESPEC | filespec | Indicates the path from the output root folder to the script file to write. The path can contain substitution items.
 
-## Template Commands
-Lines starting with --; denote a template command.
+## C# Content
+Blocks of C# content can be placed between /&#42;- and -&#42;/. The block start and end lines must be on lines of their own.
 
-Command | Args | Use
-------- | ---- | ---
-IF | C# condition | Outputs the lines up to the following ENDIF if the condition is true.
-ENDIF | | Terminates an IF.
-LOOP | name = C# enumerable | Repeats the lines up to the following ENDLOOP, assigning each result from the enumerable to the name specified.
-ENDLOOP | | Terminates a LOOP.
-SET | name = C# expression | Assigns a value to a variable.
+Lines starting with --; denote single lines of C# code, with everything following the --; being C#.
 
 ## Inline Substitutions
-Substitutions are enclosed in &#123;braces&#125;. Any variable declared via --; SET can be inserted, as can any value in the template model. The content of the braces can be any C# expression.
+Substitutions are enclosed in &#123;braces&#125;. Everything within the braces is a C# expression, the ToString() of the expression is written to the script.
 
-## Inline Commands
-Output in chevrons indicates inline commands.
+## Built-in Functions
+### Loop
+**Loop(IEnumerable)** returns a loop wrapper. You can use it in a for loop to create a wrapper that makes it easier to generate conditional code at the start and end of the enumeration.
+````
+--; for(var loop = Loop(Columns) ; loop.IsValid ; loop.Next()) { ; var col = loop.Element;
+   {loop.FirstOr(' ', ',')}@{col}
+--; }
+````
 
-Format | Output
------- | ------
-<first&#124;other&#124;last> | Only usable within a loop. "First" is output for the first iteration of the loop, "Last" for the last and "Other" for everything else.
-<-integer-> | Adds enough spaces to move the text cursor to the column specified.
+`Loop.IsValid` returns false once the loop has run out of elements.
+
+`Loop.IsFirst` returns true for the first element in the iteration.
+
+`Loop.IsLast` returns true for the last element in the iteration.
+
+`Loop.Element` returns the current element.
+
+`Loop.Next()` moves to the next element in the iteration and returns false if there are no more elements.
+
+`Loop.Elements` returns all of the elements as an array.
+
+`Loop.FirstOr(object returnIfFirst, object returnOtherwise)` returns one value or the other depending on whether this is the first iteration.
+
+`Loop.LastOr(object returnIfLast, object returnOtherwise)` returns one value or the other depending on whether this is the last iteration.
+
+### TextAndTab
+`TextAndTab(string text, int minWidth = -1, int addSpace = 1)` returns the text with trailing space padding to bring the string to a minimum width.
+
 
 ## Template Model
 Any C# expression or condition in the template can access the template model:

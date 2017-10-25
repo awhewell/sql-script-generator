@@ -93,19 +93,8 @@
     <Compile Include="StdOut.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Templating\TemplateEngineV2.cs" />
+    <Compile Include="TemplateEngine.cs" />
     <Compile Include="TemplateSwitchesStorage.cs" />
-    <Compile Include="Templating\CommandState_Loop.cs" />
-    <Compile Include="Templating\VariableReference.cs" />
-    <Compile Include="Templating\TemplateCommand_EndLoop.cs" />
-    <Compile Include="Templating\TemplateCommand_If.cs" />
-    <Compile Include="Templating\TemplateCommand_Loop.cs" />
-    <Compile Include="Templating\TemplateCommand.cs" />
-    <Compile Include="Templating\TemplateCommandParser.cs" />
-    <Compile Include="Templating\TemplateCommand_Set.cs" />
-    <Compile Include="Templating\TemplateEngine.cs" />
-    <Compile Include="Templating\TemplateParsingException.cs" />
-    <Compile Include="Templating\TemplateState.cs" />
     <Compile Include="TypeFormatter.cs" />
   </ItemGroup>
   <ItemGroup>

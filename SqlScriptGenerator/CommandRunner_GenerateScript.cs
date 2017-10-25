@@ -131,7 +131,7 @@ namespace SqlScriptGenerator
                 Switches = templateSwitches,
             };
             */
-            var templateEngine = new TemplateEngineV2() {
+            var templateEngine = new TemplateEngine() {
                 Model = model,
                 Options = Options,
                 Switches = templateSwitches,
