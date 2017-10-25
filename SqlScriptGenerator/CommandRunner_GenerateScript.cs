@@ -20,23 +20,60 @@ namespace SqlScriptGenerator
 {
     class CommandRunner_GenerateScript : CommandRunner
     {
+        private int _Iteration;
+
         public override bool Run()
         {
             ProjectStorage.LoadOptionDefaultsFromProject(Options.ProjectFileName, Options);
 
-            if(String.IsNullOrEmpty(Options.TemplateFileName))  OptionsParser.Usage("Missing template filename");
-            if(String.IsNullOrEmpty(Options.EntityName))        OptionsParser.Usage("Missing entity name");
             if(Options.DatabaseEngine == DatabaseEngine.None)   OptionsParser.Usage("Database engine must be specified");
             if(String.IsNullOrEmpty(Options.ConnectionString))  OptionsParser.Usage("Connection string must be supplied");
 
             var project = ProjectStorage.Load(Options.ProjectFileName);
-
             var engine = DatabaseEngineFactory.CreateEngine(Options.DatabaseEngine);
             var database = engine.ReadDatabaseMetadata(Options);
-            var entityPathParts = EntityResolver.SplitEntityPathParts(Options.EntityName);
+
+            if(!String.IsNullOrEmpty(Options.TemplateFileName) && !String.IsNullOrEmpty(Options.EntityName)) {
+                GenerateScript(Options.TemplateFileName, Options.EntityName, project, engine, database, isMultiScriptCreate: false);
+            } else if(!String.IsNullOrEmpty(Options.TemplateFileName)) {
+                if(project == null) {
+                    OptionsParser.Usage("Missing project");
+                }
+                foreach(var entityTemplate in project.EntityTemplates.Where(r => r.Templates.Contains(Options.TemplateFileName, StringComparer.OrdinalIgnoreCase))) {
+                    GenerateScript(Options.TemplateFileName, entityTemplate.Entity, project, engine, database, isMultiScriptCreate: true);
+                }
+            } else if(!String.IsNullOrEmpty(Options.EntityName)) {
+                if(project == null) {
+                    OptionsParser.Usage("Missing project");
+                }
+                var entityTemplate = project.EntityTemplates.FirstOrDefault(r => String.Equals(r.Entity, Options.EntityName, StringComparison.OrdinalIgnoreCase));
+                if(entityTemplate == null) {
+                    OptionsParser.Usage($"Cannot find the entity {Options.EntityName} in the project entity templates - did you specify the full name?");
+                }
+                foreach(var templateFileName in entityTemplate.Templates) {
+                    GenerateScript(templateFileName, entityTemplate.Entity, project, engine, database, isMultiScriptCreate: true);
+                }
+            } else if(project == null) {
+                OptionsParser.Usage("You must specify the project if you want to regenerate all templates for all entities");
+            } else {
+                foreach(var entityTemplate in project.EntityTemplates) {
+                    foreach(var templateFileName in entityTemplate.Templates) {
+                        GenerateScript(templateFileName, entityTemplate.Entity, project, engine, database, isMultiScriptCreate: true);
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private void GenerateScript(string templateFileName, string entityName, ProjectModel project, IEngine engine, DatabaseModel database, bool isMultiScriptCreate)
+        {
+            ++_Iteration;
+
+            var entityPathParts = EntityResolver.SplitEntityPathParts(entityName);
             var entity = EntityResolver.Resolve(database, entityPathParts);
             if(entity == null) {
-                OptionsParser.Usage($"Could not resolve entity path {Options.EntityName}");
+                OptionsParser.Usage($"Could not resolve entity path {entityName}");
             }
 
             var model = new TemplateModel(entity?.IsCaseSensitive ?? database.IsCaseSensitive) {
@@ -56,7 +93,7 @@ namespace SqlScriptGenerator
                 }
             }
 
-            var templateFileName = ProjectModel.ApplyPath(project?.TemplateFolderFullPath, Options.TemplateFileName);
+            templateFileName = ProjectModel.ApplyPath(project?.TemplateFolderFullPath, templateFileName);
             var templateSwitches = TemplateSwitchesStorage.LoadFromTemplate(templateFileName);
             if(templateSwitches.ParseErrors.Count > 0) {
                 StdOut.WriteLine($"Template switch errors in {templateFileName}");
@@ -66,17 +103,24 @@ namespace SqlScriptGenerator
                 Environment.Exit(1);
             }
 
-            if(String.IsNullOrEmpty(Options.ScriptFileName)) {
-                Options.ScriptFileName = model.ApplyModelToFileSpec(templateSwitches.FileSpec);
+            var scriptFileName = Options.ScriptFileName;
+            if(isMultiScriptCreate && !String.IsNullOrEmpty(scriptFileName)) {
+                OptionsParser.Usage("You can only specify a script filename when generating a single script");
             }
-            if(String.IsNullOrEmpty(Options.ScriptFileName)) {
+            if(String.IsNullOrEmpty(scriptFileName)) {
+                scriptFileName = model.ApplyModelToFileSpec(templateSwitches.FileSpec);
+            }
+            if(String.IsNullOrEmpty(scriptFileName)) {
                 OptionsParser.Usage("Script filename must either be supplied or specified as a FILESPEC switch in the template");
             }
-            var scriptFileName = ProjectModel.ApplyPath(project?.ScriptFolderFullPath, Options.ScriptFileName);
+            scriptFileName = ProjectModel.ApplyPath(project?.ScriptFolderFullPath, scriptFileName);
 
-            StdOut.WriteLine($"Project:    {Options.ProjectFileName}");
-            StdOut.WriteLine($"Connection: {engine.SanitiseConnectionString(Options.ConnectionString)}");
-            StdOut.WriteLine($"Entity:     {Options.EntityName}");
+            if(_Iteration == 1) {
+                StdOut.WriteLine($"Project:    {Options.ProjectFileName}");
+                StdOut.WriteLine($"Connection: {engine.SanitiseConnectionString(Options.ConnectionString)}");
+            }
+            StdOut.WriteLine("-------------------------------------------------------------------------------");
+            StdOut.WriteLine($"Entity:     {entityName}");
             StdOut.WriteLine($"Template:   {templateFileName}");
             StdOut.WriteLine($"Script:     {scriptFileName}");
 
@@ -92,8 +136,6 @@ namespace SqlScriptGenerator
                 Directory.CreateDirectory(folder);
             }
             File.WriteAllText(scriptFileName, content);
-
-            return true;
         }
     }
 }

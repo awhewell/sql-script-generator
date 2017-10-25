@@ -71,6 +71,7 @@
     <Compile Include="Models\ColumnCollection.cs" />
     <Compile Include="Models\ColumnModel.cs" />
     <Compile Include="Models\DatabaseModel.cs" />
+    <Compile Include="Models\EntityTemplatesModel.cs" />
     <Compile Include="Models\ProjectModel.cs" />
     <Compile Include="Models\SchemaModel.cs" />
     <Compile Include="Models\TableModel.cs" />

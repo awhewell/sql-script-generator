@@ -59,7 +59,12 @@ namespace SqlScriptGenerator
                 Directory.CreateDirectory(folder);
             }
 
-            var jsonText = JsonConvert.SerializeObject(projectModel, Formatting.Indented);
+            var jsonText = JsonConvert.SerializeObject(projectModel);
+
+            var formattedClone = JsonConvert.DeserializeObject<ProjectModel>(jsonText);
+            formattedClone.EntityTemplates.Sort((lhs, rhs) => String.Compare(lhs.Entity, rhs.Entity, ignoreCase: true));
+            jsonText = JsonConvert.SerializeObject(formattedClone, Formatting.Indented);
+
             File.WriteAllText(projectModel.ProjectFileName, jsonText);
         }
     }
