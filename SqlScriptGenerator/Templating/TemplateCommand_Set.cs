@@ -21,8 +21,6 @@ namespace SqlScriptGenerator.Templating
             if(value == "") State.ReportParserError($"value missing from set args");
 
             var valueObj = State.GetVariableNameObject(value);
-            if(valueObj == null) State.ReportParserError($"Cannot resolve {value}");
-
             State.AddOrReplaceVariable(name, valueObj);
         }
     }

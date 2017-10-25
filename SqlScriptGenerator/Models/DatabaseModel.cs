@@ -22,7 +22,7 @@ namespace SqlScriptGenerator.Models
 
         public bool IsCaseSensitive { get; }
 
-        public Dictionary<string, SchemaModel> Schemas { get; } = new Dictionary<string, SchemaModel>();
+        public MellowDictionary<string, SchemaModel> Schemas { get; } = new MellowDictionary<string, SchemaModel>();
 
         public IEntity Parent => null;
 
@@ -34,7 +34,7 @@ namespace SqlScriptGenerator.Models
             IsCaseSensitive = isCaseSensitive;
 
             if(!IsCaseSensitive) {
-                Schemas = new Dictionary<string, SchemaModel>(StringComparer.OrdinalIgnoreCase);
+                Schemas = new MellowDictionary<string, SchemaModel>(StringComparer.OrdinalIgnoreCase);
             }
         }
 

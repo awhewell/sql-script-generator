@@ -27,16 +27,20 @@ namespace SqlScriptGenerator.Templating
             var isBlock = false;
             TemplateCommand templateCommand = null;
             switch(commandArgs.Command.ToLower()) {
+                case "endif":   break;
                 case "endloop": templateCommand = new TemplateCommand_EndLoop(); break;
+                case "if":      templateCommand = new TemplateCommand_If(); isBlock = true; break;
                 case "loop":    templateCommand = new TemplateCommand_Loop(); isBlock = true; break;
                 case "set":     templateCommand = new TemplateCommand_Set(); break;
                 default:
                     state.ReportParserError($"{commandArgs.Command} is not a valid template command");
                     break;
             }
-            templateCommand.State = state;
-            templateCommand.EndBlockLineIndex = isBlock ? FindEndBlockLineIndex(state, commandArgs.Command) : -1;
-            templateCommand.Process(commandArgs.Args);
+            if(templateCommand != null) {
+                templateCommand.State = state;
+                templateCommand.EndBlockLineIndex = isBlock ? FindEndBlockLineIndex(state, commandArgs.Command) : -1;
+                templateCommand.Process(commandArgs.Args);
+            }
         }
 
         static CommandArgs ParseCommandArgs(TemplateState state, string line, int lineNumber)
@@ -63,6 +67,7 @@ namespace SqlScriptGenerator.Templating
             command = command.ToLower();
             var endBlock = "";
             switch(command) {
+                case "if":      endBlock = "endif"; break;
                 case "loop":    endBlock = "endloop"; break;
                 default:        throw new NotImplementedException();
             }

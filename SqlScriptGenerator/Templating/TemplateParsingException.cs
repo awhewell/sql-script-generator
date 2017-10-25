@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace SqlScriptGenerator.Templating
 {
-
     [Serializable]
     public class TemplateParsingException : Exception
     {

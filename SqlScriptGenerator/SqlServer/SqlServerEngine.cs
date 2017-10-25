@@ -65,7 +65,9 @@ namespace SqlScriptGenerator.SqlServer
         public string SanitiseConnectionString(string connectionString)
         {
             var builder = CreateConnectionStringBuilder(new Options() { ConnectionString = connectionString, AskForPassword = false });
-            builder.Password = "";
+            if(!String.IsNullOrEmpty(builder.Password)) {
+                builder.Password = "******";
+            }
 
             return builder.ConnectionString;
         }

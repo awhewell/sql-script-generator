@@ -14,33 +14,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SqlScriptGenerator.Models
+namespace SqlScriptGenerator
 {
-    public class ColumnCollection : IEntity
+    class EvaluationResult
     {
-        public string Name { get; }
+        public object Result { get; set; }
 
-        public bool IsCaseSensitive { get; }
-
-        public SchemaModel Schema { get; }
-
-        public IEntity Parent => Schema;
-
-        public MellowDictionary<string, ColumnModel> Columns { get; } = new MellowDictionary<string, ColumnModel>();
-
-        public IEnumerable<IEntity> Children => Columns.Values;
-
-        public ColumnCollection(SchemaModel parent, string name, bool isCaseSensitive)
-        {
-            Schema = parent;
-            Name = name;
-            IsCaseSensitive = isCaseSensitive;
-
-            if(!IsCaseSensitive) {
-                Columns = new MellowDictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
-            }
-        }
-
-        public override string ToString() => Name ?? "";
+        public string ParserError { get; set; }
     }
 }

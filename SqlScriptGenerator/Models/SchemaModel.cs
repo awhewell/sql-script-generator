@@ -26,11 +26,11 @@ namespace SqlScriptGenerator.Models
 
         public bool IsCaseSensitive { get; }
 
-        public Dictionary<string, TableModel> Tables { get; } = new Dictionary<string, TableModel>();
+        public MellowDictionary<string, TableModel> Tables { get; } = new MellowDictionary<string, TableModel>();
 
-        public Dictionary<string, ViewModel> Views { get; } = new Dictionary<string, ViewModel>();
+        public MellowDictionary<string, ViewModel> Views { get; } = new MellowDictionary<string, ViewModel>();
 
-        public Dictionary<string, UserDefinedTableTypeModel> UserDefinedTableTypes { get; } = new Dictionary<string, UserDefinedTableTypeModel>();
+        public MellowDictionary<string, UserDefinedTableTypeModel> UserDefinedTableTypes { get; } = new MellowDictionary<string, UserDefinedTableTypeModel>();
 
         public IEnumerable<IEntity> Children =>        Tables.Values.OfType<IEntity>()
                                                .Concat(Views.Values.OfType<IEntity>())
@@ -43,9 +43,9 @@ namespace SqlScriptGenerator.Models
             IsCaseSensitive = isCaseSensitive;
 
             if(!IsCaseSensitive) {
-                Tables = new Dictionary<string, TableModel>(StringComparer.OrdinalIgnoreCase);
-                Views = new Dictionary<string, ViewModel>(StringComparer.OrdinalIgnoreCase);
-                UserDefinedTableTypes = new Dictionary<string, UserDefinedTableTypeModel>(StringComparer.OrdinalIgnoreCase);
+                Tables = new MellowDictionary<string, TableModel>(StringComparer.OrdinalIgnoreCase);
+                Views = new MellowDictionary<string, ViewModel>(StringComparer.OrdinalIgnoreCase);
+                UserDefinedTableTypes = new MellowDictionary<string, UserDefinedTableTypeModel>(StringComparer.OrdinalIgnoreCase);
             }
         }
 

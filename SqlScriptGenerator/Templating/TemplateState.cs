@@ -90,23 +90,20 @@ namespace SqlScriptGenerator.Templating
             throw new TemplateParsingException($"Line {lineNumberOverride ?? LineNumber}: {exceptionMessage}");
         }
 
-        public NameCode SplitVariableNameIntoNameAndCode(string variableName)
-        {
-            var result = new NameCode();
-
-            var dotIdx = variableName.IndexOf('.');
-            result.Name = dotIdx == -1 ? variableName : variableName.Substring(0, dotIdx);
-            result.Code = dotIdx == -1 ? null : variableName.Substring(dotIdx + 1);
-
-            return result;
-        }
-
         public object GetVariableNameObject(string substituteValue, int? lineNumberOverride = null)
         {
-            var nameCode = SplitVariableNameIntoNameAndCode(substituteValue);
+            var variableRef = VariableReference.Parse(substituteValue);
 
-            var value = GetVariable(nameCode.Name, lineNumberOverride);
-            var result = nameCode.Code == null ? value : EvaluateCode(value, nameCode.Code);
+            var value = GetVariable(variableRef.Name, lineNumberOverride);
+            var result = value;
+            if(variableRef.EvalCode != null) {
+                var executionResult = Evaluator_CSharp.Evaluate(substituteValue, Variables);
+                if(executionResult.ParserError != null) {
+                    ReportParserError(executionResult.ParserError, lineNumberOverride);
+                } else {
+                    result = executionResult.Result;
+                }
+            }
 
             return result;
         }
@@ -114,50 +111,6 @@ namespace SqlScriptGenerator.Templating
         public string GetVariableName(string substituteValue, int? lineNumberOverride = null)
         {
             return GetVariableNameObject(substituteValue, lineNumberOverride)?.ToString();
-        }
-
-        public object EvaluateCode(object host, string code, int? lineNumberOverride = null)
-        {
-            var type = host.GetType();
-            var guid = Guid.NewGuid().ToString().Replace("-", "");
-            var className = $"Evalulator{guid}";
-            var source = @"
-                using System;
-                using System.Linq;
-
-                namespace EvaluatorNamespace
-                {
-                    public class " + className + @"
-                    {
-                        public object Evaluate(" + TypeFormatter.FormatType(type) + @" host)
-                        {
-                            return host." + code + @";
-                        }
-                    }
-                }
-            ";
-
-            var compilerParameters = new CompilerParameters() {
-                GenerateExecutable = false,
-                GenerateInMemory = true,
-            };
-            compilerParameters.CompilerOptions = "/t:library";
-            compilerParameters.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
-            compilerParameters.ReferencedAssemblies.Add("System.Core.dll");
-
-            var codeProvider = new CSharpCodeProvider();
-            var compileResults = codeProvider.CompileAssemblyFromSource(compilerParameters, source);
-
-            if(compileResults.Errors.HasErrors) {
-                var errors = String.Join(Environment.NewLine, compileResults.Errors.OfType<CompilerError>().Select(r => r.ErrorText));
-                ReportParserError($"Could not resolve {host}.{code}: {errors}", lineNumberOverride);
-            }
-
-            var assembly = compileResults.CompiledAssembly;
-            var instance = assembly.CreateInstance($"EvaluatorNamespace.{className}");
-            var result = instance.GetType().InvokeMember("Evaluate", BindingFlags.InvokeMethod, null, instance, new object[] { host });
-
-            return result;
         }
     }
 }
