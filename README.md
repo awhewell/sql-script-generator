@@ -28,6 +28,7 @@ Output in chevrons indicates inline commands.
 Format | Output
 ------ | ------
 <first&#124;other&#124;last> | Only usable within a loop. "First" is output for the first iteration of the loop, "Last" for the last and "Other" for everything else.
+<-integer-> | Adds enough spaces to move the text cursor to the column specified.
 
 ## Template Model
 Any C# expression or condition in the template can access the template model:

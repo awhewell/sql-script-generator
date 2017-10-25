@@ -78,7 +78,9 @@ namespace SqlScriptGenerator.Templating
 
         public object GetVariable(string name, int? lineNumberOverride = null)
         {
-            if(!Variables.TryGetValue(name, out object result)) {
+            object result = null;
+
+            if(!String.IsNullOrEmpty(name) && !Variables.TryGetValue(name, out result)) {
                 ReportParserError($"Variable name {name} does not exist", lineNumberOverride);
             }
 

@@ -13,6 +13,7 @@ namespace SqlScriptGenerator.Templating
         private static readonly Regex SubstituteValueRegex = new Regex(@"(\{(?<value>.*?)\})");
         private static readonly Regex SubstituteFormatRegex = new Regex(@"(\<(?<format>.*?)\>)");
         private static readonly Regex FormatLoopTernaryRegex = new Regex(@"^(?<first>.*?)(?<!\\)\|(?<other>.*?)(?<!\\)\|(?<last>.*?)$");
+        private static readonly Regex FormatTabStopRegex = new Regex(@"^-(?<tabstop>[0-9]+)-$");
 
         public TemplateSwitchesModel Switches { get; set; }
 
@@ -73,14 +74,14 @@ namespace SqlScriptGenerator.Templating
             foreach(var match in SubstituteFormatRegex.Matches(line).OfType<Match>().OrderByDescending(r => r.Index)) {
                 var format = match.Groups["format"].Value ?? "";
                 if(format != "") {
-                    var replaceWith = "";
-
-                    var formatMatch = FormatLoopTernaryRegex.Match(format);
-                    if(formatMatch.Success) {
-                        replaceWith = GetLoopTernaryReplacement(match, formatMatch, line, state);
-                    } else {
-                        replaceWith = null;
+                    string applyFormatRegex(Regex formatRegex, Func<Match, Match, string, TemplateState, string> getReplacement)
+                    {
+                        var formatMatch = formatRegex.Match(format);
+                        return formatMatch.Success ? getReplacement(match, formatMatch, line, state) : null;
                     }
+
+                    string replaceWith = null;
+                    if(replaceWith == null) replaceWith = applyFormatRegex(FormatLoopTernaryRegex, GetLoopTernaryReplacement);
 
                     if(replaceWith != null) {
                         result.Remove(match.Index, match.Length);
@@ -88,6 +89,30 @@ namespace SqlScriptGenerator.Templating
                     }
                 }
             }
+
+            // Tab stops need to be done at the very last and from left to right, not right to left
+            var tabStopSeen = false;
+            do {
+                tabStopSeen = false;
+                foreach(var match in SubstituteFormatRegex.Matches(result.ToString()).OfType<Match>().OrderBy(r => r.Index)) {
+                    var format = match.Groups["format"].Value ?? "";
+                    if(format != "") {
+                        var formatMatch = FormatTabStopRegex.Match(format);
+                        if(formatMatch.Success) {
+                            var replaceWith = GetTabStopReplacement(match, formatMatch, result.ToString(), state);
+                            if(replaceWith != null) {
+                                tabStopSeen = true;
+                                result.Remove(match.Index, match.Length);
+                                result.Insert(match.Index, replaceWith);
+                            }
+                        }
+                    }
+
+                    if(tabStopSeen) {
+                        break;
+                    }
+                }
+            } while(tabStopSeen);
 
             return result.ToString();
         }
@@ -100,6 +125,20 @@ namespace SqlScriptGenerator.Templating
             if(closestLoop != null) {
                 var group = closestLoop.IsFirstElement ? "first" : closestLoop.IsLastElement ? "last" : "other";
                 result = (formatMatch.Groups[group].Value ?? "").Replace(@"\|", "|");
+            }
+
+            return result;
+        }
+
+        private string GetTabStopReplacement(Match match, Match formatMatch, string line, TemplateState state)
+        {
+            var result = "";
+
+            var tabStopText = formatMatch.Groups["tabstop"].Value ?? "0";
+            if(int.TryParse(tabStopText, out int tabStop)) {
+                if(tabStop > match.Index) {
+                    result = new String(' ', tabStop - match.Index);
+                }
             }
 
             return result;

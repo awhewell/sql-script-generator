@@ -15,23 +15,23 @@ namespace SqlScriptGenerator.Templating
         {
             var result = new VariableReference();
 
-            var codeIdx = variable.IndexOf('.');
-            var arrayIdx = variable.IndexOf('[');
-
-            if(arrayIdx != -1) {
-                codeIdx = codeIdx == -1 ? arrayIdx : Math.Min(codeIdx, arrayIdx);
+            var hasCode = false;
+            foreach(var ch in variable) {
+                if(Char.IsPunctuation(ch) || Char.IsSeparator(ch) || Char.IsWhiteSpace(ch)) {
+                    hasCode = true;
+                    break;
+                }
             }
 
-            if(codeIdx == -1) {
-                result.Name = variable;
+            if(hasCode) {
+                result.EvalCode = variable;
             } else {
-                result.Name = variable.Substring(0, codeIdx);
-                result.EvalCode = variable.Substring(codeIdx + 1);
+                result.Name = variable;
             }
 
             return result;
         }
 
-        public override string ToString() => $"{Name} {EvalCode}";
+        public override string ToString() => $"{Name}{EvalCode}";
     }
 }
