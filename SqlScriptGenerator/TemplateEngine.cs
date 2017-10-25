@@ -203,13 +203,13 @@ namespace " + @namespace + @"
         {
             result.Append(@"
 
-public string TextAndTab(string text, int maxWidth = -1, int addToWidth = 1)
+public string PadText(string text, int minWidth = -1, int addSpace = 1)
 {
     var result = new StringBuilder(text);
-    if(maxWidth > -1 && (maxWidth + addToWidth) > result.Length) {
-        result.Append(new String(' ', (maxWidth + addToWidth) - result.Length));
-    } else if(maxWidth == -1 && addToWidth > 0) {
-        result.Append(new String(' ', addToWidth));
+    if(minWidth > -1 && (minWidth + addSpace) > result.Length) {
+        result.Append(new String(' ', (minWidth + addSpace) - result.Length));
+    } else if(minWidth == -1 && addSpace > 0) {
+        result.Append(new String(' ', addSpace));
     }
     return result.ToString();
 }
