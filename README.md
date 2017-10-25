@@ -1,174 +1,7 @@
 # SqlScriptGenerator
 Generates SQL scripts from database metadata.
 
-## Template Switches
-Lines starting with --# denote a template switch.
-
-Switch | Args | Use
------- | ---- | ---
-FILESPEC | filespec | Indicates the path from the output root folder to the script file to write. The path can contain substitution items.
-
-## C# Content
-Blocks of C# content can be placed between /&#42;- and -&#42;/. The block start and end lines must be on lines of their own.
-
-Lines starting with --; denote single lines of C# code, with everything following the --; being C#.
-
-## Inline Substitutions
-Substitutions are enclosed in &#123;braces&#125;. Everything within the braces is a C# expression, the ToString() of the expression is written to the script.
-
-## Built-in Functions
-### Loop
-**Loop(IEnumerable)** returns a loop wrapper. You can use it in a for loop to create a wrapper that makes it easier to generate conditional code at the start and end of the enumeration.
-````
---; for(var loop = Loop(Columns) ; loop.IsValid ; loop.Next()) { ; var col = loop.Element;
-   {loop.FirstOr(' ', ',')}@{col}
---; }
-````
-
-`Loop.IsValid` returns false once the loop has run out of elements.
-
-`Loop.IsFirst` returns true for the first element in the iteration.
-
-`Loop.IsLast` returns true for the last element in the iteration.
-
-`Loop.Element` returns the current element.
-
-`Loop.Next()` moves to the next element in the iteration and returns false if there are no more elements.
-
-`Loop.Elements` returns all of the elements as an array.
-
-`Loop.FirstOr(object returnIfFirst, object returnOtherwise)` returns one value or the other depending on whether this is the first iteration.
-
-`Loop.LastOr(object returnIfLast, object returnOtherwise)` returns one value or the other depending on whether this is the last iteration.
-
-### TextAndTab
-`TextAndTab(string text, int minWidth = -1, int addSpace = 1)` returns the text with trailing space padding to bring the string to a minimum width.
-
-
-## Template Model
-Any C# expression or condition in the template can access the template model:
-
-Variable Name | Description
-------------- | -----------
-Database | The current database
-Schema | The current schema
-Entity | The current table, view or UDTT.
-Columns | A list of columns from the entity in ordinal order.
-ColumnsByName | A dictionary of columns from the entity indexed by name.
-ColumnsByOrdinal | A dictionary of columns from the entity indexed by ordinal number (0 based).
-IsCaseSensitive | True if column names are case sensitive.
-Table | The table entity or null if the entity is not a table.
-View | The view entity or null if the entity is not a view.
-UDTT | The UDTT entity or null if the entity is not a UDTT.
-
-The `ToString()` of all models returns the `Name` of the model.
-
-### Database Properties
-
-Property | Description
--------- | -----------
-Name | Database name
-Parent | Always null
-Children | Dictionary of schemas
-IsCaseSensitive | True if default collation is case sensitive collation
-Schemas | Dictionary of schemas (not including system schemas) indexed by name
-
-### Schema Properties
-
-Property | Description
--------- | -----------
-Name | Schema name
-Parent | The owning database
-Children | Dictionary of Tables, Views and UDTTs indexed by name
-IsCaseSensitive | Is case sensitive collation the default
-Tables | Dictionary of tables indexed by name
-Views | Dictionary of views indexed by name
-UserDefinedTableTypes | Dictionary of UDTTs indexed by name
-
-### Table / View / UDTT Properties
-
-Property | Description
--------- | -----------
-Name | Table / view / UDTT name
-Parent | The owning schema
-Children | Dictionary of columns indexed by name
-IsCaseSensitive | Is case sensitive collation the default
-Columns | Dictionary of columns indexed by name
-Views | Dictionary of views
-UserDefinedTableTypes | Dictionary of UDTTs
-
-### Column Properties
-
-Property | Description
--------- | -----------
-Name | Column name
-Parent | The owning table / view / UDTT
-Children | An empty collection
-Ordinal | Ordinal number (1 based)
-IsCaseSensitive | Is using case sensitive collation
-IsIdentity | True if it is the table's identity column
-IsNullable | True if nullable
-SqlType | English description of the column type
-
-
-## Project Model
-
-Property | Type | Description
--------- | ---- | -----------
-ConnectionString | string | Connection string to use if none supplied on command-line.
-TemplateFolder | string | Path to root folder containing templates. Can be relative to the project file.
-ScriptFolder | string | Path to root folder where scripts are saved. Can be relative to the project file.
-EntityTemplates | array | List of templates to apply to each entity.
-
-### Entity Template Model
-
-Property | Type | Description
--------- | ---- | -----------
-Entity | string | Name of entity.
-Templates | array[string] | Array of templates that can be applied to this entity.
-
-
-## Command Line Switches
-
-Running the program without any switches displays the basic usage:
-
-````
-usage: SqlScriptGenerator <command> [options]
-  -createProj    Create or update a project file
-  -generate      Generate a script from a template
-  -metadata      Dump the metadata for a database
-
-PROJECT OPTIONS
-  -project       Full path to the project file []
-
-TEMPLATE OPTIONS
-  -template      Template file []
-  -script        Script file []
-  -entity        Name of entity to use []
-
-DATABASE ENGINE OPTIONS
-  -engine        Database engine [SqlServer]
-                 (SqlServer)
-  -connection    The connection string []
-  -askPassword   Ask for the connection password at runtime
-````
-
-### -createProj Command
-`-project` Specifies the path to the project file to create / update. Update just ensures that the schema is up-to-date.
-
-### -generate Command
-`-project` Path to project file to read defaults from. Anything not specified on the command line is taken from the project.
-
-`-entity` Database entity whose metadata is to be used. If not specified then all entities in the project are used in turn.
-
-`-template` Template to apply to the entity. If not specified then all templates for the entity (as specified in the project) are generated.
-
-`-script` Only applicable if a single script is being generated. Specifies the path to the script file. If multiple scripts are generated then the `--# FILESPEC` template switch is used to form the script filename.
-
-### -metadata Command
-Test command that dumps the metadata for the database specified. Will probably be removed at some point.
-
-# Sample Script
+## Sample Script
 ````sql
 --# FILESPEC {Schema}\procs\{Entity}_Save.sql
 /*;
@@ -348,3 +181,171 @@ BEGIN
 END;
 GO
 ````
+
+## Template Switches
+Lines starting with --# denote a template switch.
+
+Switch | Args | Use
+------ | ---- | ---
+FILESPEC | filespec | Indicates the path from the output root folder to the script file to write. The path can contain substitution items.
+
+## C# Content
+Blocks of C# content can be placed between /&#42;- and -&#42;/. The block start and end lines must be on lines of their own.
+
+Lines starting with --; denote single lines of C# code, with everything following the --; being C#.
+
+## Inline Substitutions
+Substitutions are enclosed in &#123;braces&#125;. Everything within the braces is a C# expression, the ToString() of the expression is written to the script.
+
+## Built-in Functions
+### Loop
+**Loop(IEnumerable)** returns a loop wrapper. You can use it in a for loop to create a wrapper that makes it easier to generate conditional code at the start and end of the enumeration.
+````
+--; for(var loop = Loop(Columns) ; loop.IsValid ; loop.Next()) { ; var col = loop.Element;
+   {loop.FirstOr(' ', ',')}@{col}
+--; }
+````
+
+`Loop.IsValid` returns false once the loop has run out of elements.
+
+`Loop.IsFirst` returns true for the first element in the iteration.
+
+`Loop.IsLast` returns true for the last element in the iteration.
+
+`Loop.Element` returns the current element.
+
+`Loop.Next()` moves to the next element in the iteration and returns false if there are no more elements.
+
+`Loop.Elements` returns all of the elements as an array.
+
+`Loop.FirstOr(object returnIfFirst, object returnOtherwise)` returns one value or the other depending on whether this is the first iteration.
+
+`Loop.LastOr(object returnIfLast, object returnOtherwise)` returns one value or the other depending on whether this is the last iteration.
+
+### TextAndTab
+`TextAndTab(string text, int minWidth = -1, int addSpace = 1)` returns the text with trailing space padding to bring the string to a minimum width.
+
+
+## Template Model
+Any C# expression or condition in the template can access the template model:
+
+Variable Name | Description
+------------- | -----------
+Database | The current database
+Schema | The current schema
+Entity | The current table, view or UDTT.
+Columns | A list of columns from the entity in ordinal order.
+ColumnsByName | A dictionary of columns from the entity indexed by name.
+ColumnsByOrdinal | A dictionary of columns from the entity indexed by ordinal number (0 based).
+IsCaseSensitive | True if column names are case sensitive.
+Table | The table entity or null if the entity is not a table.
+View | The view entity or null if the entity is not a view.
+UDTT | The UDTT entity or null if the entity is not a UDTT.
+
+The `ToString()` of all models returns the `Name` of the model.
+
+### Database Properties
+
+Property | Description
+-------- | -----------
+Name | Database name
+Parent | Always null
+Children | Dictionary of schemas
+IsCaseSensitive | True if default collation is case sensitive collation
+Schemas | Dictionary of schemas (not including system schemas) indexed by name
+
+### Schema Properties
+
+Property | Description
+-------- | -----------
+Name | Schema name
+Parent | The owning database
+Children | Dictionary of Tables, Views and UDTTs indexed by name
+IsCaseSensitive | Is case sensitive collation the default
+Tables | Dictionary of tables indexed by name
+Views | Dictionary of views indexed by name
+UserDefinedTableTypes | Dictionary of UDTTs indexed by name
+
+### Table / View / UDTT Properties
+
+Property | Description
+-------- | -----------
+Name | Table / view / UDTT name
+Parent | The owning schema
+Children | Dictionary of columns indexed by name
+IsCaseSensitive | Is case sensitive collation the default
+Columns | Dictionary of columns indexed by name
+Views | Dictionary of views
+UserDefinedTableTypes | Dictionary of UDTTs
+
+### Column Properties
+
+Property | Description
+-------- | -----------
+Name | Column name
+Parent | The owning table / view / UDTT
+Children | An empty collection
+Ordinal | Ordinal number (1 based)
+IsCaseSensitive | Is using case sensitive collation
+IsIdentity | True if it is the table's identity column
+IsNullable | True if nullable
+SqlType | English description of the column type
+
+
+## Project Model
+
+Property | Type | Description
+-------- | ---- | -----------
+ConnectionString | string | Connection string to use if none supplied on command-line.
+TemplateFolder | string | Path to root folder containing templates. Can be relative to the project file.
+ScriptFolder | string | Path to root folder where scripts are saved. Can be relative to the project file.
+EntityTemplates | array | List of templates to apply to each entity.
+
+### Entity Template Model
+
+Property | Type | Description
+-------- | ---- | -----------
+Entity | string | Name of entity.
+Templates | array[string] | Array of templates that can be applied to this entity.
+
+
+## Command Line Switches
+
+Running the program without any switches displays the basic usage:
+
+````
+usage: SqlScriptGenerator <command> [options]
+  -createProj    Create or update a project file
+  -generate      Generate a script from a template
+  -metadata      Dump the metadata for a database
+
+PROJECT OPTIONS
+  -project       Full path to the project file []
+
+TEMPLATE OPTIONS
+  -template      Template file []
+  -script        Script file []
+  -entity        Name of entity to use []
+
+DATABASE ENGINE OPTIONS
+  -engine        Database engine [SqlServer]
+                 (SqlServer)
+  -connection    The connection string []
+  -askPassword   Ask for the connection password at runtime
+````
+
+### -createProj Command
+`-project` Specifies the path to the project file to create / update. Update just ensures that the schema is up-to-date.
+
+### -generate Command
+`-project` Path to project file to read defaults from. Anything not specified on the command line is taken from the project.
+
+`-entity` Database entity whose metadata is to be used. If not specified then all entities in the project are used in turn.
+
+`-template` Template to apply to the entity. If not specified then all templates for the entity (as specified in the project) are generated.
+
+`-script` Only applicable if a single script is being generated. Specifies the path to the script file. If multiple scripts are generated then the `--# FILESPEC` template switch is used to form the script filename.
+
+### -metadata Command
+Test command that dumps the metadata for the database specified. Will probably be removed at some point.
+
