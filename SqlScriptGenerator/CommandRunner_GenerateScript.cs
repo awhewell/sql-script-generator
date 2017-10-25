@@ -124,7 +124,14 @@ namespace SqlScriptGenerator
             StdOut.WriteLine($"Template:   {templateFileName}");
             StdOut.WriteLine($"Script:     {scriptFileName}");
 
+            /*
             var templateEngine = new Templating.TemplateEngine() {
+                Model = model,
+                Options = Options,
+                Switches = templateSwitches,
+            };
+            */
+            var templateEngine = new TemplateEngineV2() {
                 Model = model,
                 Options = Options,
                 Switches = templateSwitches,

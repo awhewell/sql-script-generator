@@ -93,6 +93,7 @@
     <Compile Include="StdOut.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Templating\TemplateEngineV2.cs" />
     <Compile Include="TemplateSwitchesStorage.cs" />
     <Compile Include="Templating\CommandState_Loop.cs" />
     <Compile Include="Templating\VariableReference.cs" />
