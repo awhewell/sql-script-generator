@@ -51,6 +51,7 @@ namespace SqlScriptGenerator
             };
             compilerParameters.CompilerOptions = "/t:library /langversion:latest";
             compilerParameters.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
+            compilerParameters.ReferencedAssemblies.Add(Assembly.GetAssembly(typeof(Stack<>)).Location);
             compilerParameters.ReferencedAssemblies.Add("System.Core.dll");
 
             var codeProvider = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
@@ -163,6 +164,86 @@ namespace SqlScriptGenerator
 
         private void AddHelperMethods(StringBuilder result)
         {
+            result.Append(@"
+LoopWrapper<T> Loop<T>(IEnumerable<T> enumerable)
+{
+    var result = new LoopWrapper<T>(enumerable);
+    LoopStack.Push(result);
+    return result;
+}
+
+interface ILoopWrapper
+{
+    bool IsValid { get; }
+    bool IsFirst { get; }
+    bool IsLast { get; }
+}
+
+static class LoopStack
+{
+    private static Stack<ILoopWrapper> _Stack = new Stack<ILoopWrapper>();
+    
+    public static void Push(ILoopWrapper loop)
+    {
+        if(_Stack.Count == 0 || _Stack.Peek() != loop) {
+            _Stack.Push(loop);
+        }
+    }
+    
+    public static ILoopWrapper Peek()
+    {
+        return _Stack.Count == 0 ? null : _Stack.Peek();
+    }
+    
+    public static void Pop(ILoopWrapper loop)
+    {
+        if(_Stack.Count != 0 && _Stack.Peek() == loop) {
+            _Stack.Pop();
+        }
+    }
+}
+
+class LoopWrapper<T> : ILoopWrapper
+{
+    T[] _Elements;
+    int _Index = 0;
+    
+    public bool IsValid
+    {
+        get {
+            var result = _Index < _Elements.Length;
+            if(!result) {
+                LoopStack.Pop(this);
+            }
+            return result;
+        }
+    }
+
+    public bool IsFirst { get { return _Index == 0; } }
+
+    public bool IsLast { get { return _Index == _Elements.Length - 1; } }
+
+    public T Element { get { return IsValid ? _Elements[_Index] : default(T); } }
+
+    public LoopWrapper(IEnumerable<T> elements)
+    {
+        _Elements = elements.ToArray();
+    }
+
+    public bool Next()
+    {
+        if(IsValid) {
+            ++_Index;
+        }
+        return IsValid;
+    }
+    
+    public override string ToString()
+    {
+        return Element != null ? Element.ToString() : """";
+    }
+}
+            ");
         }
     }
 }
