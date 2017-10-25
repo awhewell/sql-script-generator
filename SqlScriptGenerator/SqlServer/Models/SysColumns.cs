@@ -18,6 +18,7 @@ namespace SqlScriptGenerator.SqlServer.Models
 {
     class SysColumns
     {
+        // sys.columns fields
         public int object_id { get; set; }
         public string name { get; set; }
         public int column_id { get; set; }
@@ -52,5 +53,11 @@ namespace SqlScriptGenerator.SqlServer.Models
         public string column_encryption_key_database_name { get; set; }
         public bool? is_hidden { get; set; }
         public bool? is_masked { get; set; }
+
+        // sys.types fields
+        public string type_name { get; set; }
+        public int type_precision { get; set; }
+        public int type_scale { get; set; }
+        public bool type_is_nullable { get; set; }
     }
 }

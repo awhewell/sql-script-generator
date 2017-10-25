@@ -24,6 +24,10 @@ namespace SqlScriptGenerator.Models
 
         public bool IsIdentity { get; }
 
+        public bool IsNullable { get; }
+
+        public string SqlType { get; set; }
+
         public ColumnCollection Parent { get; }
 
         IEntity IEntity.Parent => (IEntity)((ColumnCollection)Parent);
@@ -32,12 +36,14 @@ namespace SqlScriptGenerator.Models
 
         public int Ordinal { get; private set; }
 
-        public ColumnModel(ColumnCollection parent, string name, int ordinal, bool isIdentity, bool isCaseSensitive)
+        public ColumnModel(ColumnCollection parent, string name, int ordinal, bool isIdentity, string sqlType, bool isNullable, bool isCaseSensitive)
         {
             Parent =            parent;
             Name =              name;
             Ordinal =           ordinal;
             IsIdentity =        isIdentity;
+            SqlType =           sqlType;
+            IsNullable =        isNullable;
             IsCaseSensitive =   isCaseSensitive;
         }
 

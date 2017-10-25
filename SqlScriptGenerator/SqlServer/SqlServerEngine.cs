@@ -180,8 +180,14 @@ namespace SqlScriptGenerator.SqlServer
             columnCollection.Columns.Clear();
 
             foreach(var columnMeta in connection.Query<Models.SysColumns>($@"
-                SELECT *
-                FROM   [sys].[columns]
+                SELECT [syscol].*
+                      ,[type].[name] AS [type_name]
+                      ,[type].[precision] AS [type_precision]
+                      ,[type].[scale] AS [type_scale]
+                      ,[type].[is_nullable] AS [type_is_nullable]
+                FROM   [sys].[columns] AS [syscol]
+                JOIN   [sys].[types]   AS [type]   ON  [syscol].[system_type_id] = [type].[system_type_id]
+                                                   AND [syscol].[user_type_id] = [type].[user_type_id]
                 WHERE  [object_id] = @objectId
             ", new {
                 @objectId = objectId
@@ -191,9 +197,50 @@ namespace SqlScriptGenerator.SqlServer
                     columnMeta.name,
                     columnMeta.column_id,
                     columnMeta.is_identity,
+                    FormatSqlType(columnMeta),
+                    columnMeta.is_nullable ?? columnMeta.type_is_nullable,
                     columnCollection.IsCaseSensitive
                 ));
             }
+        }
+
+        private string FormatSqlType(Models.SysColumns columnMeta)
+        {
+            var result = new StringBuilder(columnMeta.type_name);
+
+            switch(result.ToString().ToLower()) {
+                case "binary":
+                case "char":
+                case "nchar":
+                    result.Append($"({columnMeta.max_length})");
+                    break;
+                case "nvarchar":
+                case "varbinary":
+                case "varchar":
+                    result.AppendFormat("({0})", columnMeta.max_length == -1 ? "max" : columnMeta.max_length.ToString());
+                    break;
+                case "decimal":
+                case "numeric":
+                    if(columnMeta.precision != 18) {
+                        result.Append($"({columnMeta.precision}, {columnMeta.scale})");
+                    }
+                    break;
+                case "float":
+                case "real":
+                    if(columnMeta.precision != columnMeta.type_precision) {
+                        result.Append($"({columnMeta.precision})");
+                    }
+                    break;
+                case "datetime2":
+                case "datetimeoffset":
+                case "time":
+                    if(columnMeta.scale != columnMeta.type_scale) {
+                        result.Append($"({columnMeta.scale})");
+                    }
+                    break;
+            }
+
+            return result.ToString();
         }
     }
 }
