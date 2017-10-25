@@ -39,7 +39,7 @@ namespace SqlScriptGenerator
                 OptionsParser.Usage($"Could not resolve entity path {Options.EntityName}");
             }
 
-            var model = new TemplateModel() {
+            var model = new TemplateModel(entity?.IsCaseSensitive ?? database.IsCaseSensitive) {
                 Database = database,
                 Schema = EntityResolver.FindSchema(entity),
                 Entity = entity,
@@ -48,7 +48,12 @@ namespace SqlScriptGenerator
                 UDTT = entity as UserDefinedTableTypeModel,
             };
             if(entity is ColumnCollection columnCollection) {
-                model.Columns.AddRange(columnCollection?.Columns.Values.OrderBy(r => r.Ordinal));
+                var ordinal = 0;
+                foreach(var col in columnCollection.Columns.Values.OrderBy(r => r.Ordinal)) {
+                    model.Columns.Add(col);
+                    model.ColumnsByName.Add(col.Name, col);
+                    model.ColumnsByOrdinal.Add(ordinal++, col);
+                }
             }
 
             var templateFileName = ProjectModel.ApplyPath(project?.TemplateFolderFullPath, Options.TemplateFileName);

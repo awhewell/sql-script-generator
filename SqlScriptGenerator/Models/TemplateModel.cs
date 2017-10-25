@@ -27,11 +27,25 @@ namespace SqlScriptGenerator.Models
 
         public List<ColumnModel> Columns { get; } = new List<ColumnModel>();
 
+        public MellowDictionary<string, ColumnModel> ColumnsByName { get; } = new MellowDictionary<string, ColumnModel>();
+
+        public MellowDictionary<int, ColumnModel> ColumnsByOrdinal { get; } = new MellowDictionary<int, ColumnModel>();
+
+        public bool IsCaseSensitive { get; }
+
         public TableModel Table { get; set; }
 
         public ViewModel View { get; set; }
 
         public UserDefinedTableTypeModel UDTT { get; set; }
+
+        public TemplateModel(bool isCaseSensitive)
+        {
+            IsCaseSensitive = isCaseSensitive;
+            if(!IsCaseSensitive) {
+                ColumnsByName = new MellowDictionary<string, ColumnModel>();
+            }
+        }
 
         public string ApplyModelToFileSpec(string fileSpec)
         {
