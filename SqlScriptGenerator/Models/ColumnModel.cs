@@ -30,6 +30,8 @@ namespace SqlScriptGenerator.Models
 
         public bool IsComputed { get; }
 
+        public bool IsPrimaryKeyMember { get; }
+
         public string SqlType { get; set; }
 
         public ColumnCollection Parent { get; }
@@ -46,21 +48,23 @@ namespace SqlScriptGenerator.Models
             int                 ordinal,
             string              sqlType,
             bool                hasDefaultValue,
+            bool                isCaseSensitive,
+            bool                isComputed,
             bool                isIdentity,
             bool                isNullable,
-            bool                isComputed,
-            bool                isCaseSensitive
+            bool                isPrimaryKeyMember
         )
         {
-            Parent =            parent;
-            Name =              name;
-            Ordinal =           ordinal;
-            SqlType =           sqlType;
-            HasDefaultValue =   hasDefaultValue;
-            IsCaseSensitive =   isCaseSensitive;
-            IsComputed =        isComputed;
-            IsIdentity =        isIdentity;
-            IsNullable =        isNullable;
+            Parent =                parent;
+            Name =                  name;
+            Ordinal =               ordinal;
+            SqlType =               sqlType;
+            HasDefaultValue =       hasDefaultValue;
+            IsCaseSensitive =       isCaseSensitive;
+            IsComputed =            isComputed;
+            IsIdentity =            isIdentity;
+            IsNullable =            isNullable;
+            IsPrimaryKeyMember =    isPrimaryKeyMember;
         }
 
         public override string ToString() => Name ?? "";

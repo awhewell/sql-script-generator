@@ -62,5 +62,8 @@ namespace SqlScriptGenerator.SqlServer.Models
 
         // sys.default_constraints fields
         public string default_definition { get; set; }
+
+        // sys.indexes (primary key) fields
+        public bool primary_is_member { get; set; }
     }
 }

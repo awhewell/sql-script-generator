@@ -290,9 +290,9 @@ SqlType | English description of the column type
 HasDefaultValue | True if the column has a default value
 IsCaseSensitive | Is using case sensitive collation
 IsComputed | True if the column is computed
-IsIdentity | True if it is the table's identity column
+IsIdentity | True if the column is the table's identity column
 IsNullable | True if nullable
-
+IsPrimaryKeyMember | True if column is a part of the primary key
 
 ## Project Model
 

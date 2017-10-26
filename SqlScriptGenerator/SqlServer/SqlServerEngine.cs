@@ -186,11 +186,15 @@ namespace SqlScriptGenerator.SqlServer
                          ,[type].[scale] AS [type_scale]
                          ,[type].[is_nullable] AS [type_is_nullable]
                          ,[default].[definition] AS [default_definition]
+                         ,CASE WHEN [primary].[object_id] IS NULL THEN 0 ELSE 1 END AS [primary_is_member]
                 FROM      [sys].[columns]             AS [syscol]
                 JOIN      [sys].[types]               AS [type]    ON  [syscol].[system_type_id] = [type].[system_type_id]
                                                                    AND [syscol].[user_type_id] = [type].[user_type_id]
                 LEFT JOIN [sys].[default_constraints] AS [default] ON  [syscol].[default_object_id] = [default].[object_id]
-                WHERE  [object_id] = @objectId
+                LEFT JOIN [sys].[indexes]             AS [primary] ON  [syscol].[object_id] = [primary].[object_id]
+                                                                   AND [syscol].[column_id] = [primary].[index_id]
+                                                                   AND [primary].[is_primary_key] = 1
+                WHERE  [syscol].[object_id] = @objectId
             ", new {
                 @objectId = objectId
             }).ToArray()) {
@@ -200,10 +204,11 @@ namespace SqlScriptGenerator.SqlServer
                     columnMeta.column_id,
                     FormatSqlType(columnMeta),
                     hasDefaultValue:    !String.IsNullOrEmpty(columnMeta.default_definition),
+                    isCaseSensitive:    string.IsNullOrEmpty(columnMeta.collation_name) ? columnCollection.IsCaseSensitive : !columnMeta.collation_name.Contains("_CI_"),
+                    isComputed:         columnMeta.is_computed,
                     isIdentity:         columnMeta.is_identity,
                     isNullable:         columnMeta.is_nullable ?? columnMeta.type_is_nullable,
-                    isComputed:         columnMeta.is_computed,
-                    isCaseSensitive:    string.IsNullOrEmpty(columnMeta.collation_name) ? columnCollection.IsCaseSensitive : !columnMeta.collation_name.Contains("_CI_")
+                    isPrimaryKeyMember: columnMeta.primary_is_member
                 ));
             }
         }
