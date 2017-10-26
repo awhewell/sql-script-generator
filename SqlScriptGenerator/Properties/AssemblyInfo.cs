@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SqlScriptGenerator")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Generates SQL scripts from database metadata")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SqlScriptGenerator")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright © Andrew Whewell 2017 onwards")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

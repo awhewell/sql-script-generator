@@ -60,7 +60,6 @@
     <Compile Include="CommandRunner_DumpMetadata.cs" />
     <Compile Include="CommandRunner_GenerateProjectFile.cs" />
     <Compile Include="CommandRunner_GenerateScript.cs" />
-    <Compile Include="Evaluator_CSharp.cs" />
     <Compile Include="DatabaseEngine.cs" />
     <Compile Include="DatabaseEngineFactory.cs" />
     <Compile Include="EntityResolver.cs" />
