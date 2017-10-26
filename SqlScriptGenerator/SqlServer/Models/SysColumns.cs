@@ -59,5 +59,8 @@ namespace SqlScriptGenerator.SqlServer.Models
         public int type_precision { get; set; }
         public int type_scale { get; set; }
         public bool type_is_nullable { get; set; }
+
+        // sys.default_constraints fields
+        public string default_definition { get; set; }
     }
 }

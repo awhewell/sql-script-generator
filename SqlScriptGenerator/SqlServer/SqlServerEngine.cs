@@ -180,14 +180,16 @@ namespace SqlScriptGenerator.SqlServer
             columnCollection.Columns.Clear();
 
             foreach(var columnMeta in connection.Query<Models.SysColumns>($@"
-                SELECT [syscol].*
-                      ,[type].[name] AS [type_name]
-                      ,[type].[precision] AS [type_precision]
-                      ,[type].[scale] AS [type_scale]
-                      ,[type].[is_nullable] AS [type_is_nullable]
-                FROM   [sys].[columns] AS [syscol]
-                JOIN   [sys].[types]   AS [type]   ON  [syscol].[system_type_id] = [type].[system_type_id]
-                                                   AND [syscol].[user_type_id] = [type].[user_type_id]
+                SELECT    [syscol].*
+                         ,[type].[name] AS [type_name]
+                         ,[type].[precision] AS [type_precision]
+                         ,[type].[scale] AS [type_scale]
+                         ,[type].[is_nullable] AS [type_is_nullable]
+                         ,[default].[definition] AS [default_definition]
+                FROM      [sys].[columns]             AS [syscol]
+                JOIN      [sys].[types]               AS [type]    ON  [syscol].[system_type_id] = [type].[system_type_id]
+                                                                   AND [syscol].[user_type_id] = [type].[user_type_id]
+                LEFT JOIN [sys].[default_constraints] AS [default] ON  [syscol].[default_object_id] = [default].[object_id]
                 WHERE  [object_id] = @objectId
             ", new {
                 @objectId = objectId
@@ -197,6 +199,7 @@ namespace SqlScriptGenerator.SqlServer
                     columnMeta.name,
                     columnMeta.column_id,
                     FormatSqlType(columnMeta),
+                    hasDefaultValue:    !String.IsNullOrEmpty(columnMeta.default_definition),
                     isIdentity:         columnMeta.is_identity,
                     isNullable:         columnMeta.is_nullable ?? columnMeta.type_is_nullable,
                     isComputed:         columnMeta.is_computed,
