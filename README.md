@@ -317,7 +317,6 @@ Running the program without any switches displays the basic usage:
 usage: SqlScriptGenerator <command> [options]
   -createProj    Create or update a project file
   -generate      Generate a script from a template
-  -metadata      Dump the metadata for a database
 
 PROJECT OPTIONS
   -project       Full path to the project file []
@@ -332,6 +331,9 @@ DATABASE ENGINE OPTIONS
                  (SqlServer)
   -connection    The connection string []
   -askPassword   Ask for the connection password at runtime
+
+MISC OPTIONS
+  -writeSource   Write generated C# template code to filename provided []
 ````
 
 ### -createProj Command
@@ -345,7 +347,3 @@ DATABASE ENGINE OPTIONS
 `-template` Template to apply to the entity. If not specified then all templates for the entity (as specified in the project) are generated.
 
 `-script` Only applicable if a single script is being generated. Specifies the path to the script file. If multiple scripts are generated then the `--# FILESPEC` template switch is used to form the script filename.
-
-### -metadata Command
-Test command that dumps the metadata for the database specified. Will probably be removed at some point.
-

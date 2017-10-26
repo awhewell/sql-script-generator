@@ -11,6 +11,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -52,6 +53,18 @@ namespace SqlScriptGenerator
             var @namespace = "GeneratorNamespace";
             var className = $"Generator{guid}";
             var source = GenerateSource(templateSource, @namespace, className);
+
+            if(!String.IsNullOrEmpty(Options.DebugWriteSourceFileName)) {
+                var folder = Path.GetDirectoryName(Options.DebugWriteSourceFileName);
+                if(String.IsNullOrEmpty(folder)) {
+                    folder = Environment.CurrentDirectory;
+                }
+                if(!Directory.Exists(folder)) {
+                    Directory.CreateDirectory(folder);
+                }
+                File.WriteAllText(Options.DebugWriteSourceFileName, source);
+                StdOut.WriteLine($"DEBUG: Saved generated source to {Options.DebugWriteSourceFileName}");
+            }
 
             var compilerParameters = new CompilerParameters() {
                 GenerateExecutable = false,

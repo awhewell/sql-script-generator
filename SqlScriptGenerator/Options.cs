@@ -33,5 +33,7 @@ namespace SqlScriptGenerator
         public string ScriptFileName { get; set; }
 
         public string EntityName { get; set; }
+
+        public string DebugWriteSourceFileName { get; set; }
     }
 }

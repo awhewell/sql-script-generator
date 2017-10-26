@@ -20,8 +20,6 @@ namespace SqlScriptGenerator
     {
         None,
 
-        DumpMetadata,
-
         GenerateProjectFile,
 
         GenerateScript,

@@ -58,7 +58,6 @@
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="CommandRunner.cs" />
-    <Compile Include="CommandRunner_DumpMetadata.cs" />
     <Compile Include="CommandRunner_GenerateProjectFile.cs" />
     <Compile Include="CommandRunner_GenerateScript.cs" />
     <Compile Include="DatabaseEngine.cs" />

@@ -60,9 +60,6 @@ namespace SqlScriptGenerator
                     case "-generate":
                         result.Command = ParseCommand(result, Command.GenerateScript);
                         break;
-                    case "-metadata":
-                        result.Command = ParseCommand(result, Command.DumpMetadata);
-                        break;
                     case "-project":
                         result.ProjectFileName = UseNextArg(arg, nextArg, ref i);
                         break;
@@ -71,6 +68,9 @@ namespace SqlScriptGenerator
                         break;
                     case "-template":
                         result.TemplateFileName = UseNextArg(arg, nextArg, ref i);
+                        break;
+                    case "-writesource":
+                        result.DebugWriteSourceFileName = UseNextArg(arg, nextArg, ref i);
                         break;
                     default:
                         Usage($"Invalid argument {arg}");
@@ -137,7 +137,6 @@ namespace SqlScriptGenerator
             StdOut.WriteLine($"usage: SqlScriptGenerator <command> [options]");
             StdOut.WriteLine($"  -createProj    Create or update a project file");
             StdOut.WriteLine($"  -generate      Generate a script from a template");
-            StdOut.WriteLine($"  -metadata      Dump the metadata for a database");
             StdOut.WriteLine();
             StdOut.WriteLine($"PROJECT OPTIONS");
             StdOut.WriteLine($"  -project       Full path to the project file [{defaults.ProjectFileName}]");
@@ -152,6 +151,9 @@ namespace SqlScriptGenerator
             StdOut.WriteLine($"                 ({ListEnum<DatabaseEngine>(exclude: new DatabaseEngine[] { DatabaseEngine.None })})");
             StdOut.WriteLine($"  -connection    The connection string [{defaults.ConnectionString}]");
             StdOut.WriteLine($"  -askPassword   Ask for the connection password at runtime");
+            StdOut.WriteLine();
+            StdOut.WriteLine($"MISC OPTIONS");
+            StdOut.WriteLine($"  -writeSource   Write generated C# template code to filename provided [{defaults.DebugWriteSourceFileName}]");
 
             if(!String.IsNullOrEmpty(message)) {
                 StdOut.WriteLine();
