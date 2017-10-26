@@ -87,7 +87,7 @@ namespace SqlScriptGenerator.SqlServer
                 });
 
                 if(databaseMeta != null) {
-                    result = new DatabaseModel(databaseMeta.name, databaseMeta.collation_name?.Contains("_CI_") ?? true);
+                    result = new DatabaseModel(databaseMeta.name, !databaseMeta.collation_name?.Contains("_CI_") ?? true);
                     ReadSchemaMetadata(connection, result);
                 }
             }
@@ -220,13 +220,17 @@ namespace SqlScriptGenerator.SqlServer
             switch(result.ToString().ToLower()) {
                 case "binary":
                 case "char":
-                case "nchar":
                     result.Append($"({columnMeta.max_length})");
                     break;
-                case "nvarchar":
+                case "nchar":
+                    result.Append($"({columnMeta.max_length / 2})");
+                    break;
                 case "varbinary":
                 case "varchar":
                     result.AppendFormat("({0})", columnMeta.max_length == -1 ? "max" : columnMeta.max_length.ToString());
+                    break;
+                case "nvarchar":
+                    result.AppendFormat("({0})", columnMeta.max_length == -1 ? "max" : (columnMeta.max_length / 2).ToString());
                     break;
                 case "decimal":
                 case "numeric":

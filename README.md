@@ -275,8 +275,6 @@ Parent | The owning schema
 Children | Dictionary of columns indexed by name
 IsCaseSensitive | Is case sensitive collation the default
 Columns | Dictionary of columns indexed by name
-Views | Dictionary of views
-UserDefinedTableTypes | Dictionary of UDTTs
 
 ### Column Properties
 
