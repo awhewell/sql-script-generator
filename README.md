@@ -222,8 +222,8 @@ Substitutions are enclosed in &#123;braces&#125;. Everything within the braces i
 
 `Loop.LastOr(object returnIfLast, object returnOtherwise)` returns one value or the other depending on whether this is the last iteration.
 
-### TextAndTab
-`TextAndTab(string text, int minWidth = -1, int addSpace = 1)` returns the text with trailing space padding to bring the string to a minimum width.
+### PadText
+`PadText(string text, int minWidth = -1, int addSpace = 1)` returns the text with trailing space padding to bring the string to a minimum width.
 
 
 ## Template Model
