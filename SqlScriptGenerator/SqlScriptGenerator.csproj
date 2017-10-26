@@ -63,7 +63,6 @@
     <Compile Include="DatabaseEngine.cs" />
     <Compile Include="DatabaseEngineFactory.cs" />
     <Compile Include="EntityResolver.cs" />
-    <Compile Include="EvaluationResult.cs" />
     <Compile Include="IEngine.cs" />
     <Compile Include="IEntity.cs" />
     <Compile Include="MellowDictionary.cs" />
