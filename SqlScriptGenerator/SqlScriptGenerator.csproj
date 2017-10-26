@@ -85,7 +85,6 @@
     <Compile Include="SqlServer\Models\SysColumns.cs" />
     <Compile Include="SqlServer\Models\SysTableTypes.cs" />
     <Compile Include="SqlServer\SqlServerEngine.cs" />
-    <Compile Include="SqlServer\Models\IS_Column.cs" />
     <Compile Include="SqlServer\Models\IS_Schemata.cs" />
     <Compile Include="SqlServer\Models\IS_Table.cs" />
     <Compile Include="SqlServer\Models\SysDatabases.cs" />

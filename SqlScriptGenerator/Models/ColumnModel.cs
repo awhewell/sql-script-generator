@@ -26,6 +26,8 @@ namespace SqlScriptGenerator.Models
 
         public bool IsNullable { get; }
 
+        public bool IsComputed { get; }
+
         public string SqlType { get; set; }
 
         public ColumnCollection Parent { get; }
@@ -36,7 +38,16 @@ namespace SqlScriptGenerator.Models
 
         public int Ordinal { get; private set; }
 
-        public ColumnModel(ColumnCollection parent, string name, int ordinal, bool isIdentity, string sqlType, bool isNullable, bool isCaseSensitive)
+        public ColumnModel(
+            ColumnCollection    parent,
+            string              name,
+            int                 ordinal,
+            string              sqlType,
+            bool                isIdentity,
+            bool                isNullable,
+            bool                isComputed,
+            bool                isCaseSensitive
+        )
         {
             Parent =            parent;
             Name =              name;
@@ -44,6 +55,7 @@ namespace SqlScriptGenerator.Models
             IsIdentity =        isIdentity;
             SqlType =           sqlType;
             IsNullable =        isNullable;
+            IsComputed =        isComputed;
             IsCaseSensitive =   isCaseSensitive;
         }
 

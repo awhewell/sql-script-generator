@@ -287,6 +287,7 @@ Parent | The owning table / view / UDTT
 Children | An empty collection
 Ordinal | Ordinal number (1 based)
 IsCaseSensitive | Is using case sensitive collation
+IsComputed | True if the column is computed
 IsIdentity | True if it is the table's identity column
 IsNullable | True if nullable
 SqlType | English description of the column type

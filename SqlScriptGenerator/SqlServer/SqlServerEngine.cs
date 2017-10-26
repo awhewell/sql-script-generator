@@ -196,10 +196,11 @@ namespace SqlScriptGenerator.SqlServer
                     columnCollection,
                     columnMeta.name,
                     columnMeta.column_id,
-                    columnMeta.is_identity,
                     FormatSqlType(columnMeta),
-                    columnMeta.is_nullable ?? columnMeta.type_is_nullable,
-                    columnCollection.IsCaseSensitive
+                    isIdentity:         columnMeta.is_identity,
+                    isNullable:         columnMeta.is_nullable ?? columnMeta.type_is_nullable,
+                    isComputed:         columnMeta.is_computed,
+                    isCaseSensitive:    string.IsNullOrEmpty(columnMeta.collation_name) ? columnCollection.IsCaseSensitive : !columnMeta.collation_name.Contains("_CI_")
                 ));
             }
         }
