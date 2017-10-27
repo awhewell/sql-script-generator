@@ -180,21 +180,28 @@ namespace SqlScriptGenerator.SqlServer
             columnCollection.Columns.Clear();
 
             foreach(var columnMeta in connection.Query<Models.SysColumns>($@"
+                WITH [primaryIndexColumns] AS (
+                    SELECT   [indexCol].[column_id]
+                    FROM     [sys].[indexes]       AS [index]
+                    JOIN     [sys].[index_columns] AS [indexCol] ON  [index].[object_id] = [indexCol].[object_id]
+                                                                 AND [index].[index_id] = [indexCol].[index_id]
+                    WHERE    [index].[object_id] = @objectId
+                    AND      [index].[is_primary_key] = 1
+                    GROUP BY [indexCol].[column_id]
+                )
                 SELECT    [syscol].*
                          ,[type].[name] AS [type_name]
                          ,[type].[precision] AS [type_precision]
                          ,[type].[scale] AS [type_scale]
                          ,[type].[is_nullable] AS [type_is_nullable]
                          ,[default].[definition] AS [default_definition]
-                         ,CASE WHEN [primary].[object_id] IS NULL THEN 0 ELSE 1 END AS [primary_is_member]
+                         ,CASE WHEN [primary].[column_id] IS NULL THEN 0 ELSE 1 END AS [primary_is_member]
                 FROM      [sys].[columns]             AS [syscol]
                 JOIN      [sys].[types]               AS [type]    ON  [syscol].[system_type_id] = [type].[system_type_id]
                                                                    AND [syscol].[user_type_id] = [type].[user_type_id]
                 LEFT JOIN [sys].[default_constraints] AS [default] ON  [syscol].[default_object_id] = [default].[object_id]
-                LEFT JOIN [sys].[indexes]             AS [primary] ON  [syscol].[object_id] = [primary].[object_id]
-                                                                   AND [syscol].[column_id] = [primary].[index_id]
-                                                                   AND [primary].[is_primary_key] = 1
-                WHERE  [syscol].[object_id] = @objectId
+                LEFT JOIN [primaryIndexColumns]       AS [primary] ON  [syscol].[column_id] = [primary].[column_id]
+                WHERE     [syscol].[object_id] = @objectId
             ", new {
                 @objectId = objectId
             }).ToArray()) {
