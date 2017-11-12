@@ -275,6 +275,7 @@ Parent | The owning schema
 Children | Dictionary of columns indexed by name
 IsCaseSensitive | Is case sensitive collation the default
 Columns | Dictionary of columns indexed by name
+UsedByStoredProcedures | **(UDTT only)** A list of stored procedures that take the UDTT as a parameter
 
 ### Column Properties
 
@@ -291,6 +292,13 @@ IsComputed | True if the column is computed
 IsIdentity | True if the column is the table's identity column
 IsNullable | True if nullable
 IsPrimaryKeyMember | True if column is a part of the primary key
+
+### Stored Procedure Properties
+
+Property | Description
+-------- | -----------
+Schema | Reference to the owning schema
+Name | Procedure name
 
 ## Project Model
 

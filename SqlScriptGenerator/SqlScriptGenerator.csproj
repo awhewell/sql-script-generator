@@ -72,6 +72,7 @@
     <Compile Include="Models\EntityTemplatesModel.cs" />
     <Compile Include="Models\ProjectModel.cs" />
     <Compile Include="Models\SchemaModel.cs" />
+    <Compile Include="Models\StoredProcedureModel.cs" />
     <Compile Include="Models\TableModel.cs" />
     <Compile Include="Models\TemplateModel.cs" />
     <Compile Include="Models\TemplateSwitchesModel.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="ProjectStorage.cs" />
     <Compile Include="SqlServer\Models\SysColumns.cs" />
     <Compile Include="SqlServer\Models\SysTableTypes.cs" />
+    <Compile Include="SqlServer\Models\SysProcReference.cs" />
     <Compile Include="SqlServer\SqlServerEngine.cs" />
     <Compile Include="SqlServer\Models\IS_Schemata.cs" />
     <Compile Include="SqlServer\Models\IS_Table.cs" />

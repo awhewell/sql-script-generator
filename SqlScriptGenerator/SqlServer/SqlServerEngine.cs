@@ -17,6 +17,7 @@ using SqlScriptGenerator.Models;
 using Dapper;
 using System.Data.SqlClient;
 using System.Data;
+using SqlScriptGenerator.SqlServer.Models;
 
 namespace SqlScriptGenerator.SqlServer
 {
@@ -89,6 +90,7 @@ namespace SqlScriptGenerator.SqlServer
                 if(databaseMeta != null) {
                     result = new DatabaseModel(databaseMeta.name, !databaseMeta.collation_name?.Contains("_CI_") ?? true);
                     ReadSchemaMetadata(connection, result);
+                    ReadReferences(connection, result);
                 }
             }
 
@@ -113,6 +115,7 @@ namespace SqlScriptGenerator.SqlServer
                 ReadTableMetadata(connection, schema);
                 ReadViewMetadata(connection, schema);
                 ReadUserDefinedTableTypeMetadata(connection, schema);
+                ReadStoredProcedureMetadata(connection, schema);
             }
         }
 
@@ -172,6 +175,21 @@ namespace SqlScriptGenerator.SqlServer
                 var udtt = new UserDefinedTableTypeModel(schema, udttMeta.name, schema.IsCaseSensitive);
                 schema.UserDefinedTableTypes.Add(udtt.Name, udtt);
                 ReadSysColumnMetadata(connection, schema, udtt, udttMeta.type_table_object_id);
+            }
+        }
+
+        private void ReadStoredProcedureMetadata(SqlConnection connection, SchemaModel schema)
+        {
+            schema.StoredProcedures.Clear();
+
+            foreach(var storedProcedureName in connection.Query<string>($@"
+                SELECT ROUTINE_NAME
+                FROM   INFORMATION_SCHEMA.ROUTINES
+                WHERE  ROUTINE_SCHEMA = @schemaName
+            ", new {
+                schemaName = schema.Name,
+            })) {
+                schema.StoredProcedures.Add(storedProcedureName, new StoredProcedureModel(schema, storedProcedureName));
             }
         }
 
@@ -261,6 +279,36 @@ namespace SqlScriptGenerator.SqlServer
             }
 
             return result.ToString();
+        }
+
+        private void ReadReferences(SqlConnection connection, DatabaseModel database)
+        {
+            foreach(var udtt in database.Schemas.SelectMany(r => r.Value.UserDefinedTableTypes.Values)) {
+                ReadUdttReferences(connection, database, udtt);
+            }
+        }
+
+        private void ReadUdttReferences(SqlConnection connection, DatabaseModel database, UserDefinedTableTypeModel udtt)
+        {
+            udtt.UsedByStoredProcedures.Clear();
+
+            foreach(var procReference in connection.Query<SysProcReference>(@"
+                SELECT [procSchema].[name] AS [SchemaName]
+                      ,[proc].[name]       AS [ProcedureName]
+                FROM   [sys].[parameter_type_usages] AS [usage]
+                JOIN   [sys].[table_types]           AS [type]       ON [usage].[user_type_id] = [type].[user_type_id]
+                JOIN   [sys].[schemas]               AS [typeSchema] ON [type].[schema_id] = [typeSchema].[schema_id]
+                JOIN   [sys].[procedures]            AS [proc]       ON [usage].[object_id] = [proc].[object_id]
+                JOIN   [sys].[schemas]               AS [procSchema] ON [proc].[schema_id] = [procSchema].[schema_id]
+                WHERE  [typeSchema].[name] = @udttSchemaName
+                AND    [type].[name] = @udttName
+            ", new {
+                udttSchemaName = udtt.Schema.Name,
+                udttName       = udtt.Name,
+            })) {
+                var proc = database.Schemas[procReference.SchemaName].StoredProcedures[procReference.ProcedureName];
+                udtt.UsedByStoredProcedures.Add(proc);
+            }
         }
     }
 }

@@ -14,16 +14,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SqlScriptGenerator.Models
+namespace SqlScriptGenerator.SqlServer.Models
 {
-    public class UserDefinedTableTypeModel : ColumnCollection
+    class SysProcReference
     {
-        public List<StoredProcedureModel> UsedByStoredProcedures { get; } = new List<StoredProcedureModel>();
+        public string SchemaName { get; set; }
 
-        public UserDefinedTableTypeModel(SchemaModel parent, string name, bool isCaseSensitive) : base(parent, name, isCaseSensitive)
-        {
-        }
-
-        public override string ToString() => Name ?? "";
+        public string ProcedureName { get; set; }
     }
 }

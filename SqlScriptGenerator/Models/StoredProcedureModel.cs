@@ -16,40 +16,18 @@ using System.Threading.Tasks;
 
 namespace SqlScriptGenerator.Models
 {
-    public class SchemaModel : IEntity
+    public class StoredProcedureModel
     {
+        public SchemaModel Schema { get; }
+
+        public IEntity Parent { get => Schema; }
+
         public string Name { get; }
 
-        public DatabaseModel Database { get; }
-
-        public IEntity Parent => Database;
-
-        public bool IsCaseSensitive { get; }
-
-        public MellowDictionary<string, TableModel> Tables { get; } = new MellowDictionary<string, TableModel>();
-
-        public MellowDictionary<string, ViewModel> Views { get; } = new MellowDictionary<string, ViewModel>();
-
-        public MellowDictionary<string, UserDefinedTableTypeModel> UserDefinedTableTypes { get; } = new MellowDictionary<string, UserDefinedTableTypeModel>();
-
-        public MellowDictionary<string, StoredProcedureModel> StoredProcedures { get; } = new MellowDictionary<string, StoredProcedureModel>();
-
-        public IEnumerable<IEntity> Children =>        Tables.Values.OfType<IEntity>()
-                                               .Concat(Views.Values.OfType<IEntity>())
-                                               .Concat(UserDefinedTableTypes.Values.OfType<IEntity>());
-
-        public SchemaModel(DatabaseModel parent, string name, bool isCaseSensitive)
+        public StoredProcedureModel(SchemaModel parent, string name)
         {
-            Database = parent;
+            Schema = parent;
             Name = name;
-            IsCaseSensitive = isCaseSensitive;
-
-            if(!IsCaseSensitive) {
-                Tables = new MellowDictionary<string, TableModel>(StringComparer.OrdinalIgnoreCase);
-                Views = new MellowDictionary<string, ViewModel>(StringComparer.OrdinalIgnoreCase);
-                UserDefinedTableTypes = new MellowDictionary<string, UserDefinedTableTypeModel>(StringComparer.OrdinalIgnoreCase);
-                StoredProcedures = new MellowDictionary<string, StoredProcedureModel>(StringComparer.OrdinalIgnoreCase);
-            }
         }
 
         public override string ToString() => Name ?? "";

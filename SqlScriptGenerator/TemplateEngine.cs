@@ -291,7 +291,7 @@ class LoopWrapper<T> : ILoopWrapper
 
     public LoopWrapper(IEnumerable<T> elements)
     {
-        _Elements = elements.ToArray();
+        _Elements = (elements ?? new T[]{}).ToArray();
     }
 
     public bool Next()
