@@ -265,6 +265,7 @@ IsCaseSensitive | Is case sensitive collation the default
 Tables | Dictionary of tables indexed by name
 Views | Dictionary of views indexed by name
 UserDefinedTableTypes | Dictionary of UDTTs indexed by name
+StoredProcedures | Dictionary of stored procedures indexed by name
 
 ### Table / View / UDTT Properties
 
