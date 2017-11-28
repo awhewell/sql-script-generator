@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SqlScriptGenerator.Models
@@ -20,7 +21,11 @@ namespace SqlScriptGenerator.Models
     {
         public string Name { get; }
 
-        public bool HasDefaultValue { get; }
+        public bool HasDefaultValue { get { return RawDefaultValue != null; } }
+
+        public string RawDefaultValue { get; }
+
+        public string LiteralDefaultValue { get { return BuildLiteralDefaultValue(); } }
 
         public bool IsCaseSensitive { get; }
 
@@ -47,7 +52,7 @@ namespace SqlScriptGenerator.Models
             string              name,
             int                 ordinal,
             string              sqlType,
-            bool                hasDefaultValue,
+            string              rawDefaultValue,
             bool                isCaseSensitive,
             bool                isComputed,
             bool                isIdentity,
@@ -59,7 +64,7 @@ namespace SqlScriptGenerator.Models
             Name =                  name;
             Ordinal =               ordinal;
             SqlType =               sqlType;
-            HasDefaultValue =       hasDefaultValue;
+            RawDefaultValue =       rawDefaultValue;
             IsCaseSensitive =       isCaseSensitive;
             IsComputed =            isComputed;
             IsIdentity =            isIdentity;
@@ -68,5 +73,24 @@ namespace SqlScriptGenerator.Models
         }
 
         public override string ToString() => Name ?? "";
+
+        private string BuildLiteralDefaultValue()
+        {
+            string result = null;
+
+            if(RawDefaultValue != null) {
+                var match = Regex.Match(RawDefaultValue, @"^\(\((?<number>\d+)\)\)$");
+                if(match.Success) {
+                    result = match.Groups["number"].Value;
+                } else {
+                    match = Regex.Match(RawDefaultValue, @"^\(\((?<string>'.*')\)\)$");
+                    if(Regex.Match(RawDefaultValue, @"^'.*'$").Success) {
+                        result = RawDefaultValue;
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 }

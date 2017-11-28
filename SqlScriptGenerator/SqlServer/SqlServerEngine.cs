@@ -228,7 +228,7 @@ namespace SqlScriptGenerator.SqlServer
                     columnMeta.name,
                     columnMeta.column_id,
                     FormatSqlType(columnMeta),
-                    hasDefaultValue:    !String.IsNullOrEmpty(columnMeta.default_definition),
+                    rawDefaultValue:    columnMeta.default_definition,
                     isCaseSensitive:    string.IsNullOrEmpty(columnMeta.collation_name) ? columnCollection.IsCaseSensitive : !columnMeta.collation_name.Contains("_CI_"),
                     isComputed:         columnMeta.is_computed,
                     isIdentity:         columnMeta.is_identity,

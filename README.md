@@ -288,6 +288,8 @@ Children | An empty collection
 Ordinal | Ordinal number (1 based)
 SqlType | English description of the column type
 HasDefaultValue | True if the column has a default value
+RawDefaultValue | Default value as declared in column metadata
+LiteralDefaultValue | Cooked default value expressed as a literal
 IsCaseSensitive | Is using case sensitive collation
 IsComputed | True if the column is computed
 IsIdentity | True if the column is the table's identity column
